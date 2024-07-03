@@ -6,19 +6,36 @@ import 'chart.js/auto';
 import { BASE_URL } from '../constants.js';
 
 const ViewAPI = () => {
-  const { id } =useParams();
+  const { id } = useParams();
   const [api, setApi] = useState(null);
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
+    fetchApiData();
+    fetchLogs();
+  }, [id]);
+
+  const fetchApiData = () => {
     axios.get(`${BASE_URL}api-list/${id}/`)
       .then(response => setApi(response.data))
       .catch(error => console.error('Error fetching API:', error));
+  };
 
+  const fetchLogs = () => {
     axios.get(`${BASE_URL}api-list/${id}/call-logs/`)
       .then(response => setLogs(response.data))
       .catch(error => console.error('Error fetching logs:', error));
-  }, [id]);
+  };
+
+  const handleHitAndLog = () => {
+    axios.get(`${BASE_URL}/hit-api/${id}`)
+      .then(() => {
+        // Refresh data after hitting and logging API
+        fetchApiData();
+        fetchLogs();
+      })
+      .catch(error => console.error('Error hitting and logging API:', error));
+  };
 
   const data = {
     labels: logs.map(log => new Date(log.timestamp).toLocaleString()),
@@ -44,6 +61,13 @@ const ViewAPI = () => {
           <p><strong>Updated At:</strong> {new Date(api.updated_at).toLocaleString()}</p>
         </div>
       )}
+
+      <button
+        onClick={handleHitAndLog}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+      >
+        Hit and Log API
+      </button>
 
       <h3 className="text-xl font-bold mt-8 mb-4">API Call Logs</h3>
       <table className="min-w-full bg-white">

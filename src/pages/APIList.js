@@ -44,8 +44,8 @@ const APIList = () => {
               <td className="border px-4 py-2">{api.code}</td>
               <td className="border px-4 py-2">{new Date(api.updated_at).toLocaleString()}</td>
               <td className="border px-4 py-2">
-                <Link to={`http://127.0.0.1:8000/api/api-list/${api.id}`} className="text-blue-500 hover:underline">View</Link> | 
-                <Link to={`http://127.0.0.1:8000/api/api-list/${api.id}`} className="text-blue-500 hover:underline">Edit</Link> | 
+                <Link to={`/view-api/${api.id}`} className="text-blue-500 hover:underline">View</Link> | 
+                <Link to={`/edit-api/${api.id}`} className="text-blue-500 hover:underline">Edit</Link> | 
                 <button className="text-red-500 hover:underline" onClick={() => deleteApi(api.id)}>Delete</button>
               </td>
             </tr>
