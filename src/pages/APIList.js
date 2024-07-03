@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { BASE_URL } from '../constants.js';
 
 const APIList = () => {
   const [apis, setApis] = useState([]);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/api-list/')
+    axios.get(`${BASE_URL}api-list/`)
       .then(response => setApis(response.data))
       .catch(error => console.error('Error fetching APIs:', error));
   }, []);
 
   const deleteApi = (id) => {
-    axios.delete(`/api/api-list/${id}/`)
+    axios.delete(`${BASE_URL}api-list/${id}/`)
       .then(() => {
         setApis(prevApis => prevApis.filter(api => api.id !== id));
       })
@@ -43,8 +44,8 @@ const APIList = () => {
               <td className="border px-4 py-2">{api.code}</td>
               <td className="border px-4 py-2">{new Date(api.updated_at).toLocaleString()}</td>
               <td className="border px-4 py-2">
-                <Link to={`/view-api/${api.id}`} className="text-blue-500 hover:underline">View</Link> | 
-                <Link to={`/edit-api/${api.id}`} className="text-blue-500 hover:underline">Edit</Link> | 
+                <Link to={`http://127.0.0.1:8000/api/api-list/${api.id}`} className="text-blue-500 hover:underline">View</Link> | 
+                <Link to={`http://127.0.0.1:8000/api/api-list/${api.id}`} className="text-blue-500 hover:underline">Edit</Link> | 
                 <button className="text-red-500 hover:underline" onClick={() => deleteApi(api.id)}>Delete</button>
               </td>
             </tr>

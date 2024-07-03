@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { BASE_URL } from '../constants.js';
 
 const ViewAPI = () => {
   const { id } =useParams();
@@ -10,11 +11,11 @@ const ViewAPI = () => {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    axios.get(`/api/apis/${id}/`)
+    axios.get(`${BASE_URL}api-list/${id}/`)
       .then(response => setApi(response.data))
       .catch(error => console.error('Error fetching API:', error));
 
-    axios.get(`/api/apis/${id}/logs/`)
+    axios.get(`${BASE_URL}api-list/${id}/call-logs/`)
       .then(response => setLogs(response.data))
       .catch(error => console.error('Error fetching logs:', error));
   }, [id]);

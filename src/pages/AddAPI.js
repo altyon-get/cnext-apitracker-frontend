@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../constants.js';
 
 const AddAPI = () => {
   const [apiEndpoint, setApiEndpoint] = useState('');
@@ -10,7 +11,7 @@ const AddAPI = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('/api/apis/', {
+    axios.post(`${BASE_URL}api-list/`, {
       api_endpoint: apiEndpoint,
       request_type: requestType,
       params: params,
