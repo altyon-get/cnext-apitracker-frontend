@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
+  
   return (
     <div className="w-64 bg-gray-800 text-white h-screen">
       <div className="p-6">

@@ -10,7 +10,7 @@ const EditAPI = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`/api/apis/${id}/`)
+    axios.get(`/api/api-list/${id}/`)
       .then(response => {
         const api = response.data;
         setApiEndpoint(api.api_endpoint);
@@ -19,6 +19,7 @@ const EditAPI = () => {
       })
       .catch(error => console.error('Error fetching API:', error));
   }, [id]);
+  console.log(params)
 
   const handleSubmit = (e) => {
     e.preventDefault();
