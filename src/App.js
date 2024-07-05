@@ -1,17 +1,20 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import APIList from './pages/APIList';
-import AddAPI from './pages/AddAPI';
-import ViewAPI from './pages/ViewAPI';
-import EditAPI from './pages/EditAPI';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import APIList from "./pages/APIList";
+import AddAPI from "./pages/AddAPI";
+import ViewAPI from "./pages/ViewAPI";
+import EditAPI from "./pages/EditAPI";
 
-function App() {
+
+const App = () => {
   return (
     <Router>
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-grow p-6">
+      <div className="flex h-screen">
+        <div className="fixed top-0 left-0 h-full">
+          <Sidebar />
+        </div>
+        <div className="flex-grow ml-64 p-6 overflow-y-auto">
           <Routes>
             <Route path="/api-list" element={<APIList />} />
             <Route path="/add-api" element={<AddAPI />} />
@@ -23,6 +26,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;

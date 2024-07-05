@@ -28,7 +28,7 @@ const ViewAPI = () => {
   };
 
   const handleHitAndLog = () => {
-    axios.get(`${BASE_URL}/hit-api/${id}`)
+    axios.get(`${BASE_URL}hit-api/${id}`)
       .then(() => {
         // Refresh data after hitting and logging API
         fetchApiData();
@@ -48,6 +48,33 @@ const ViewAPI = () => {
         borderColor: 'rgba(75, 192, 192, 0.2)',
       },
     ],
+  };
+
+  const options = {
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Timestamp',
+        },
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Response Time (seconds)',
+        },
+      },
+    },
+    responsive: true,
+    maintainAspectRatio: false,
   };
 
   return (
@@ -88,7 +115,9 @@ const ViewAPI = () => {
       </table>
 
       <h3 className="text-xl font-bold mt-8 mb-4">Response Time Graph</h3>
-      <Line data={data} />
+      <div className="w-full h-96">
+        <Line data={data} options={options} />
+      </div>
     </div>
   );
 };

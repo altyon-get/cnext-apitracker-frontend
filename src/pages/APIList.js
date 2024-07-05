@@ -15,7 +15,7 @@ const APIList = () => {
   const deleteApi = (id) => {
     axios.delete(`${BASE_URL}api-list/${id}/`)
       .then(() => {
-        setApis(prevApis => prevApis.filter(api => api.id !== id));
+        setApis(prevApis => prevApis.filter(api => api._id !== id));
       })
       .catch(error => console.error('Error deleting API:', error));
   };
@@ -37,16 +37,16 @@ const APIList = () => {
         </thead>
         <tbody>
           {apis.map((api, index) => (
-            <tr key={api.id}>
+            <tr key={api._id}>
               <td className="border px-4 py-2">{index + 1}</td>
               <td className="border px-4 py-2">{api.api_endpoint}</td>
               <td className="border px-4 py-2">{api.status}</td>
               <td className="border px-4 py-2">{api.code}</td>
               <td className="border px-4 py-2">{new Date(api.updated_at).toLocaleString()}</td>
               <td className="border px-4 py-2">
-                <Link to={`/view-api/${api.id}`} className="text-blue-500 hover:underline">View</Link> | 
-                <Link to={`/edit-api/${api.id}`} className="text-blue-500 hover:underline">Edit</Link> | 
-                <button className="text-red-500 hover:underline" onClick={() => deleteApi(api.id)}>Delete</button>
+                <Link to={`/view-api/${api._id}`} className="text-blue-500 hover:underline">View</Link> | 
+                <Link to={`/edit-api/${api._id}`} className="text-blue-500 hover:underline">Edit</Link> | 
+                <button className="text-red-500 hover:underline" onClick={() => deleteApi(api._id)}>Delete</button>
               </td>
             </tr>
           ))}
