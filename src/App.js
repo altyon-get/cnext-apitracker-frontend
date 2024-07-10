@@ -5,7 +5,7 @@ import APIList from "./pages/APIList";
 import AddAPI from "./pages/AddAPI";
 import ViewAPI from "./pages/ViewAPI";
 import EditAPI from "./pages/EditAPI";
-
+import Login from "./pages/Login";
 
 const App = () => {
   return (
@@ -16,6 +16,7 @@ const App = () => {
         </div>
         <div className="flex-grow ml-64 p-6 overflow-y-auto">
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route path="/api-list" element={<APIList />} />
             <Route path="/add-api" element={<AddAPI />} />
             <Route path="/view-api/:id" element={<ViewAPI />} />

@@ -2,28 +2,39 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../constants.js';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Loader from '../components/Loader';
 
 const AddAPI = () => {
   const [apiEndpoint, setApiEndpoint] = useState('');
   const [requestType, setRequestType] = useState('GET');
   const [params, setParams] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsLoading(true);
     axios.post(`${BASE_URL}api-list/`, {
       api_endpoint: apiEndpoint,
       request_type: requestType,
       params: params,
     })
     .then(() => {
+      setIsLoading(false);
+      toast.success('API added successfully!');
       navigate('/api-list');
     })
-    .catch(error => console.error('Error adding API:', error));
+    .catch(error => {
+      setIsLoading(false);
+      console.error('Error adding API:', error);
+      toast.error('Failed to add API. Please try again.');
+    });
   };
 
   return (
-    <div>
+    <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">Add API</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -60,10 +71,12 @@ const AddAPI = () => {
         <button 
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          disabled={isLoading}
         >
-          Add API
+          {isLoading ? <Loader /> : 'Add API'}
         </button>
       </form>
+      <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
     </div>
   );
 };
