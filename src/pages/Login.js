@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/AuthenticationContext'; // Import useAuth hook
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use login method from auth context
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,11 +21,12 @@ const Login = () => {
         },
       });
       const token = response.data.token;
-      console.log(token, ' -token')
       localStorage.setItem('token', token);
+      login(username, token); // Store user info (optional) and token in context
       navigate('/api-list');
     } catch (error) {
       console.error('Login error:', error);
+      // Handle login error (show toast message, etc.)
     }
   };
 

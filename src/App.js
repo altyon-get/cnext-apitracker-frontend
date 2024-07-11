@@ -6,9 +6,11 @@ import AddAPI from "./pages/AddAPI";
 import ViewAPI from "./pages/ViewAPI";
 import EditAPI from "./pages/EditAPI";
 import Login from "./pages/Login";
+import { AuthenticationProvider } from './components/AuthenticationContext';
 
 const App = () => {
   return (
+    <AuthenticationProvider>
     <Router>
       <div className="flex h-screen">
         <div className="fixed top-0 left-0 h-full">
@@ -26,6 +28,7 @@ const App = () => {
         </div>
       </div>
     </Router>
+    </AuthenticationProvider>
   );
 };
 

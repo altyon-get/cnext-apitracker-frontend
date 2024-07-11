@@ -1,15 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiList, FiPlus, FiLogIn, FiLogOut } from 'react-icons/fi'; 
+import { FiList, FiPlus, FiLogIn, FiLogOut } from 'react-icons/fi';
+import { useAuth } from '../components/AuthenticationContext'; // Import useAuth hook
 import { useNavigate } from 'react-router-dom'; 
 
-const Sidebar = ({ isLoggedIn, onLogout }) => {
-  const navigate = useNavigate(); 
+const Sidebar = () => {
+  const { isAuthenticated, logout } = useAuth(); // Use isAuthenticated and logout methods from auth context
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-   
-    onLogout();
-    navigate('/login'); 
+    logout(); // Clear user and token from context
+    localStorage.removeItem('token'); // Remove token from localStorage
+    navigate('/login'); // Navigate to login page after logout
   };
 
   return (
@@ -34,7 +36,7 @@ const Sidebar = ({ isLoggedIn, onLogout }) => {
       <div className="p-6">
         <ul>
           <li className="mb-4">
-            {isLoggedIn ? (
+            {isAuthenticated() ? (
               <button
                 onClick={handleLogout}
                 className="block w-full bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline flex items-center justify-center"

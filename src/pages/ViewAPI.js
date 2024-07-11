@@ -47,7 +47,7 @@ const ViewAPI = () => {
 
   const handleHitAndLog = () => {
     setIsLoading(true);
-    api.get(`hit-api/${id}`)
+    api.get(`api/hit-api/${id}`)
       .then(() => {
         fetchApiData();
         fetchLogs();
