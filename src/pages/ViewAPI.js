@@ -4,6 +4,7 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import api from '../api/api';
 import Loader from '../components/Loader';
+import { FaCopy } from 'react-icons/fa';
 
 const ViewAPI = () => {
   const { id } = useParams();
@@ -112,10 +113,21 @@ const ViewAPI = () => {
     <div className="bg-gray-100 min-h-screen p-8">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
         {apiData ? (
-          <div className="p-6 bg-gray-200 text-black">
+          <div className="p-6 bg-gray-200 text-black flex gap-2 flex-col">
             <h2 className="text-3xl font-bold mb-4">API Details</h2>
-            <p className="text-lg"><span className="font-semibold">Endpoint:</span> {apiData.api_endpoint}</p>
-            <p className="text-lg"><span className="font-semibold">Status:</span> {apiData.status}</p>
+            <p className="text-lg flex  items-center gap-2"><span className="font-semibold">Endpoint:</span>
+          <span className='text-blue-600 hover:text-blue-700'>
+          {apiData.api_endpoint}
+        
+          </span>
+          <FaCopy className='cursor-pointer text-gray-500' />
+            </p>
+            <p className="text-lg"><span className={`font-semibold`} >Status:</span> 
+            <span className={`ml-2 font-semibold ${apiData.status===1?"bg-green-500 text-white px-2 py-[.3rem] rounded-md":"bg-red-500 text-white rounded-md"}`}>
+
+            {apiData.status===1?"OK":"NOT OK"}
+            </span>
+            </p>
             <p className="text-lg"><span className="font-semibold">Code:</span> {apiData.code}</p>
             <p className="text-lg"><span className="font-semibold">Updated At:</span> {formatDate(apiData.updated_at)}</p>
           </div>
@@ -141,9 +153,9 @@ const ViewAPI = () => {
                 <table className="min-w-full bg-white border border-gray-300 shadow-sm rounded-lg overflow-hidden">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Index</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response Time</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Index</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Response Time</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
