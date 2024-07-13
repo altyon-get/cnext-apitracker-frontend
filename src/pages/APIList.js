@@ -48,6 +48,19 @@ const APIList = () => {
     }
   };
 
+  const getHighlightedText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, "gi"));
+    return parts.map((part, index) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <span key={index} className="bg-yellow-200">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
   const filteredApis = useMemo(() => {
     return apis.filter((api) => {
       const matchesSearch = api.api_endpoint
@@ -55,11 +68,6 @@ const APIList = () => {
         .includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-    // .sort((a, b) => {
-    //   if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-    //   if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
-    //   return 0;
-    // });
   }, [apis, searchTerm, sortBy, sortOrder]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -201,7 +209,9 @@ const APIList = () => {
                     <td className="border-t-0 px-6 py-4 whitespace-no-wrap">
                       {indexOfFirstItem + index + 1}
                     </td>
-                    <td className="border-t-0 px-6 py-4">{api.api_endpoint}</td>
+                    <td className="border-t-0 px-6 py-4">
+                      {getHighlightedText(api.api_endpoint, searchTerm)}
+                    </td>
                     <td className="border-t-0 px-6 py-4">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
