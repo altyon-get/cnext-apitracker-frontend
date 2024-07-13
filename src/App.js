@@ -5,12 +5,10 @@ import APIList from "./pages/APIList";
 import AddAPI from "./pages/AddAPI";
 import ViewAPI from "./pages/ViewAPI";
 import EditAPI from "./pages/EditAPI";
-import Login from "./pages/Login";
-import { AuthenticationProvider } from './components/AuthenticationContext';
+import { LoginRoute } from "./routes/LoginRoute";
 
 const App = () => {
   return (
-    <AuthenticationProvider>
     <Router>
       <div className="flex h-screen">
         <div className="fixed top-0 left-0 h-full">
@@ -18,7 +16,7 @@ const App = () => {
         </div>
         <div className="flex-grow ml-64 p-6 overflow-y-auto">
           <Routes>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<LoginRoute />} />
             <Route path="/api-list" element={<APIList />} />
             <Route path="/add-api" element={<AddAPI />} />
             <Route path="/view-api/:id" element={<ViewAPI />} />
@@ -28,7 +26,6 @@ const App = () => {
         </div>
       </div>
     </Router>
-    </AuthenticationProvider>
   );
 };
 
