@@ -16,30 +16,27 @@ const APIList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("updated_at");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     fetchApis();
+    // const intervalId = setInterval(fetchApis, 3600000);
+    // return () => clearInterval(intervalId);
   }, []);
 
   const fetchApis = async () => {
-    console.log("fetch api calling...");
     setIsLoading(true);
     try {
-      const response = await api.get("api/api-list/");
-      setApis(response.data);
+      const response = await api.get(`${BASE_URL}api-list/`);
+      console.log(response);
+      setApis(response?.data);
     } catch (error) {
-      console.error("Error fetching APIs:", error);
       toast.error(`Failed to fetch list: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // useEffect(()=>{
-  //   setInterval(()=>{
-  //     fetchApis();
-  //   },10000)
-  // },[])
 
   const deleteApi = async (id) => {
     try {
@@ -47,7 +44,6 @@ const APIList = () => {
       setApis((prevApis) => prevApis.filter((api) => api._id !== id));
       toast.success("API deleted successfully");
     } catch (error) {
-      console.error("Error deleting API:", error);
       toast.error(`Failed to delete API: ${error.message}`);
     }
   };
@@ -59,7 +55,12 @@ const APIList = () => {
         .includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-  }, [apis, searchTerm]);
+    // .sort((a, b) => {
+    //   if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+    //   if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+    //   return 0;
+    // });
+  }, [apis, searchTerm, sortBy, sortOrder]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -69,20 +70,57 @@ const APIList = () => {
 
   const renderPaginationButtons = () => {
     const pageNumbers = Math.ceil(filteredApis.length / itemsPerPage);
+    const maxVisibleButtons = 5;
     const buttons = [];
 
-    for (let i = 1; i <= pageNumbers; i++) {
+    let startPage = Math.max(
+      1,
+      currentPage - Math.floor(maxVisibleButtons / 2)
+    );
+    let endPage = Math.min(pageNumbers, startPage + maxVisibleButtons - 1);
+
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key="start"
+          onClick={() => paginate(1)}
+          className="pagination-button"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(<span key="start-ellipsis">...</span>);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       buttons.push(
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-            currentPage === i
-              ? "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-          }`}
+          className={`pagination-button ${currentPage === i ? "active" : ""}`}
         >
           {i}
+        </button>
+      );
+    }
+
+    if (endPage < pageNumbers) {
+      if (endPage < pageNumbers - 1) {
+        buttons.push(<span key="end-ellipsis">...</span>);
+      }
+      buttons.push(
+        <button
+          key="end"
+          onClick={() => paginate(pageNumbers)}
+          className="pagination-button"
+        >
+          {pageNumbers}
         </button>
       );
     }
@@ -103,6 +141,23 @@ const APIList = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+        <div className="w-full md:w-2/3 flex flex-wrap justify-end">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="mr-2 px-3 py-2 border rounded-md"
+          >
+            <option value="updated_at">Sort by Last Updated</option>
+            <option value="api_endpoint">Sort by Endpoint</option>
+            <option value="status">Sort by Status</option>
+          </select>
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="px-3 py-2 bg-gray-200 rounded-md"
+          >
+            {sortOrder === "asc" ? "▲" : "▼"}
+          </button>
         </div>
       </div>
 
@@ -187,59 +242,28 @@ const APIList = () => {
               </tbody>
             </table>
           </div>
-          <div className="py-3 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-            <div className="flex flex-1 justify-between sm:hidden">
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex-1 text-sm text-gray-700">
+              Showing {indexOfFirstItem + 1} to{" "}
+              {Math.min(indexOfLastItem, filteredApis.length)} of{" "}
+              {filteredApis.length} results
+            </div>
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
               >
-                Previous
+                <FaChevronLeft className="h-4 w-4" />
               </button>
+              {renderPaginationButtons()}
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={indexOfLastItem >= filteredApis.length}
-                className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
               >
-                Next
+                <FaChevronRight className="h-4 w-4" />
               </button>
-            </div>
-            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-gray-700">
-                  Showing{" "}
-                  <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
-                  <span className="font-medium">
-                    {Math.min(indexOfLastItem, filteredApis.length)}
-                  </span>{" "}
-                  of <span className="font-medium">{filteredApis.length}</span>{" "}
-                  results
-                </p>
-              </div>
-              <div>
-                <nav
-                  className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                  aria-label="Pagination"
-                >
-                  <button
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                  >
-                    <span className="sr-only">Previous</span>
-                    <FaChevronLeft className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                  {renderPaginationButtons()}
-                  <button
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={indexOfLastItem >= filteredApis.length}
-                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                  >
-                    <span className="sr-only">Next</span>
-                    <FaChevronRight className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                </nav>
-              </div>
             </div>
           </div>
         </>
