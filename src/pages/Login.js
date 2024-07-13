@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { adminLogin } from "../redux/slices/adminSlice";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -27,6 +28,9 @@ const Login = () => {
       }
     } catch (err) {
       // console.error(err);
+      toast.error(err, {
+        duration: 1000,
+      });
       setError(err || "An error occurred during login.");
     } finally {
       setLoading(false);
