@@ -29,7 +29,6 @@ const APIList = () => {
     setIsLoading(true);
     try {
       const response = await api.get(`${BASE_URL}api-list/`);
-      console.log(response);
       setApis(response?.data);
     } catch (error) {
       toast.error(`Failed to fetch list: ${error.message}`);
