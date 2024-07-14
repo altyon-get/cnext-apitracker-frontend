@@ -62,7 +62,7 @@ const APIList = () => {
 
   const filteredApis = useMemo(() => {
     return apis.filter((api) => {
-      const matchesSearch = api.api_endpoint
+      const matchesSearch = api.endpoint
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
       return matchesSearch;
@@ -156,7 +156,7 @@ const APIList = () => {
             className="mr-2 px-3 py-2 border rounded-md"
           >
             <option value="updated_at">Sort by Last Updated</option>
-            <option value="api_endpoint">Sort by Endpoint</option>
+            <option value="endpoint">Sort by Endpoint</option>
             <option value="status">Sort by Status</option>
           </select>
           <button
@@ -186,7 +186,7 @@ const APIList = () => {
                     Index
                   </th>
                   <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-                    API Endpoint
+                    Endpoint
                   </th>
                   <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
                     Status
@@ -209,7 +209,7 @@ const APIList = () => {
                       {indexOfFirstItem + index + 1}
                     </td>
                     <td className="border-t-0 px-6 py-4">
-                      {getHighlightedText(api.api_endpoint, searchTerm)}
+                      {getHighlightedText(api.endpoint, searchTerm)}
                     </td>
                     <td className="border-t-0 px-6 py-4">
                       <span

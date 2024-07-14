@@ -117,7 +117,7 @@ const ViewAPI = () => {
             <h2 className="text-3xl font-bold mb-4">API Details</h2>
             <p className="text-lg flex  items-center gap-2"><span className="font-semibold">Endpoint:</span>
           <span className='text-blue-600 hover:text-blue-700'>
-          {apiData.api_endpoint}
+          {apiData.endpoint}
         
           </span>
           <FaCopy className='cursor-pointer text-gray-500' />

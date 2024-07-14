@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const EditAPI = () => {
   const { id } = useParams();
-  const [apiEndpoint, setApiEndpoint] = useState("");
+  const [endpoint, setEndpoint] = useState("");
   const [requestType, setRequestType] = useState("GET");
   const [params, setParams] = useState("");
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const EditAPI = () => {
       .get(`/api/apis/${id}/`)
       .then((response) => {
         const api = response.data;
-        setApiEndpoint(api.api_endpoint);
+        setEndpoint(api.endpoint);
         setRequestType(api.request_type);
         setParams(api.params);
       })
@@ -25,7 +25,7 @@ const EditAPI = () => {
     e.preventDefault();
     axios
       .put(`/api/apis/${id}/`, {
-        api_endpoint: apiEndpoint,
+        endpoint: endpoint,
         request_type: requestType,
         params: params,
       })
@@ -41,12 +41,12 @@ const EditAPI = () => {
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            API Endpoint
+            Endpoint
           </label>
           <input
             type="text"
-            value={apiEndpoint}
-            onChange={(e) => setApiEndpoint(e.target.value)}
+            value={endpoint}
+            onChange={(e) => setEndpoint(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>

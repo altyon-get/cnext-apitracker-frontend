@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AddAPI = () => {
-  const [apiEndpoint, setApiEndpoint] = useState("");
+  const [endpoint, setEndpoint] = useState("");
   const [requestType, setRequestType] = useState("GET");
   const [params, setParams] = useState("");
   const [errors, setErrors] = useState({});
@@ -31,7 +31,7 @@ const AddAPI = () => {
 
     axios
       .post(`${BASE_URL}api-list/`, {
-        api_endpoint: apiEndpoint,
+        endpoint: endpoint,
         request_type: requestType,
         params: params,
       })
@@ -58,18 +58,18 @@ const AddAPI = () => {
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            API Endpoint
+            Endpoint
           </label>
           <input
             type="text"
-            value={apiEndpoint}
-            onChange={(e) => setApiEndpoint(e.target.value)}
+            value={endpoint}
+            onChange={(e) => setEndpoint(e.target.value)}
             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-              errors.apiEndpoint ? "border-red-500" : ""
+              errors.endpoint ? "border-red-500" : ""
             }`}
           />
-          {errors.apiEndpoint && (
-            <p className="text-red-500 text-xs italic">{errors.apiEndpoint}</p>
+          {errors.endpoint && (
+            <p className="text-red-500 text-xs italic">{errors.endpoint}</p>
           )}
         </div>
         <div className="mb-4">
