@@ -287,12 +287,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AddAPI = () => {
-<<<<<<< HEAD
-  const [endpoint, setEndpoint] = useState("");
-=======
   const [addMethod, setAddMethod] = useState("manual");
-  const [apiEndpoint, setApiEndpoint] = useState("");
->>>>>>> 65aab8e1fca60bfca0675e695b2aee8beb30f6fc
+  const [endpoint, setEndpoint] = useState("");
   const [requestType, setRequestType] = useState("GET");
   const [headers, setHeaders] = useState([{ key: "", value: "" }]);
   const [params, setParams] = useState([{ key: "", value: "" }]);
@@ -303,8 +299,8 @@ const AddAPI = () => {
 
   const validateManualEntry = () => {
     const errors = {};
-    if (!apiEndpoint.trim()) {
-      errors.apiEndpoint = "API Endpoint is required.";
+    if (!endpoint.trim()) {
+      errors.endpoint = "API Endpoint is required.";
     }
     if (
       requestType !== "GET" &&
@@ -334,34 +330,11 @@ const AddAPI = () => {
       return;
     }
 
-<<<<<<< HEAD
-    axios
-      .post(`${BASE_URL}api-list/`, {
-        endpoint: endpoint,
-        request_type: requestType,
-        params: params,
-      })
-      .then(() => {
-        toast.success("API added successfully!");
-        navigate("/api-list");
-      })
-      .catch((error) => {
-        console.error("Error adding API:", error);
-        if (error.response && error.response.data) {
-          toast.error(
-            error.response.data.message ||
-              "An error occurred while adding the API."
-          );
-        } else {
-          toast.error("An error occurred while adding the API.");
-        }
-      });
-=======
     try {
       let data;
       if (addMethod === "manual") {
         data = {
-          api_endpoint: apiEndpoint,
+          endpoint:endpoint,
           request_type: requestType,
           headers: headers.filter((h) => h.key && h.value),
           params: params.filter((p) => p.key && p.value),
@@ -395,7 +368,6 @@ const AddAPI = () => {
 
   const removeField = (setter, index) => {
     setter((prev) => prev.filter((_, i) => i !== index));
->>>>>>> 65aab8e1fca60bfca0675e695b2aee8beb30f6fc
   };
 
   const updateField = (setter, index, key, value) => {
@@ -414,14 +386,14 @@ const AddAPI = () => {
         </label>
         <input
           type="text"
-          value={apiEndpoint}
-          onChange={(e) => setApiEndpoint(e.target.value)}
+          value={endpoint}
+          onChange={(e) => setEndpoint(e.target.value)}
           className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-            errors.apiEndpoint ? "border-red-500" : ""
+            errors.endpoint ? "border-red-500" : ""
           }`}
         />
-        {errors.apiEndpoint && (
-          <p className="text-red-500 text-xs italic">{errors.apiEndpoint}</p>
+        {errors.endpoint && (
+          <p className="text-red-500 text-xs italic">{errors.endpoint}</p>
         )}
       </div>
       <div className="mb-4">
@@ -557,43 +529,6 @@ const AddAPI = () => {
   return (
     <div className="container mx-auto px-4 py-8 bg-gray-100 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4">Add API</h2>
-<<<<<<< HEAD
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Endpoint
-          </label>
-          <input
-            type="text"
-            value={endpoint}
-            onChange={(e) => setEndpoint(e.target.value)}
-            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-              errors.endpoint ? "border-red-500" : ""
-            }`}
-          />
-          {errors.endpoint && (
-            <p className="text-red-500 text-xs italic">{errors.endpoint}</p>
-          )}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Request Type
-          </label>
-          <select
-            value={requestType}
-            onChange={(e) => setRequestType(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Parameters
-=======
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Add Method
@@ -618,7 +553,6 @@ const AddAPI = () => {
               className="form-radio"
             />
             <span className="ml-2">Upload JSON</span>
->>>>>>> 65aab8e1fca60bfca0675e695b2aee8beb30f6fc
           </label>
         </div>
       </div>
