@@ -123,7 +123,7 @@ const ViewAPI = () => {
           <FaCopy className='cursor-pointer text-gray-500' />
             </p>
             <p className="text-lg"><span className={`font-semibold`} >Status:</span> 
-            <span className={`ml-2 font-semibold ${apiData.status===1?"bg-green-500 text-white px-2 py-[.3rem] rounded-md":"bg-red-500 text-white rounded-md"}`}>
+            <span className={`ml-2 font-semibold ${apiData.status===1?"bg-green-500 text-white px-2 py-[.3rem] rounded-md":"bg-red-500 px-2 py-[.3rem] text-white rounded-md"}`}>
 
             {apiData.status===1?"OK":"NOT OK"}
             </span>
