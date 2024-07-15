@@ -33,9 +33,30 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/view-api/:id" element={<ViewAPI />} />
-            <Route path="/edit-api/:id" element={<EditAPI />} />
-            <Route path="/" element={<APIList />} />
+            <Route
+              path="/view-api/:id"
+              element={
+                <ProtectedRoute>
+                  <ViewAPI />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-api/:id"
+              element={
+                <ProtectedRoute>
+                  <EditAPI />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <APIList />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </div>
