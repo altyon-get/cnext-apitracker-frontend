@@ -22,18 +22,17 @@ const APIList = () => {
 
   useEffect(() => {
     fetchApis();
-  }, [currentPage, searchTerm, sortBy, sortOrder]);
+  }, [currentPage]);
 
   const fetchApis = async () => {
     setIsLoading(true);
     try {
       const response = await api.get(`${BASE_URL}api-list/`, {
         params: {
-          currentPage,
+          page: currentPage,
           page_size: itemsPerPage,
         },
       });
-      console.log(response?.data?.data, 'sadfdsafsdad')
       setApis(response?.data?.data);
       setTotalApis(response?.data?.total);
     } catch (error) {
@@ -46,7 +45,6 @@ const APIList = () => {
   const deleteApi = async (id) => {
     try {
       await axios.delete(`${BASE_URL}api-list/${id}/`);
-      setApis((prevApis) => prevApis.filter((api) => api._id !== id));
       toast.success("API deleted successfully");
       fetchApis();
     } catch (error) {
@@ -55,6 +53,9 @@ const APIList = () => {
   };
 
   const getHighlightedText = (text, highlight) => {
+    if (!highlight.trim()) {
+      return text;
+    }
     const parts = text.split(new RegExp(`(${highlight})`, "gi"));
     return parts.map((part, index) =>
       part.toLowerCase() === highlight.toLowerCase() ? (
@@ -67,18 +68,17 @@ const APIList = () => {
     );
   };
 
-  const filteredApis = useMemo(() => {
-    return apis.filter((api) => {
-      const matchesSearch = api.endpoint
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    });
-  }, [apis, searchTerm]);
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredApis.slice(indexOfFirstItem, indexOfLastItem);
+  const filteredAndSortedApis = useMemo(() => {
+    return apis
+      .filter((api) =>
+        api.endpoint.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+        if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [apis, searchTerm, sortBy, sortOrder]);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -177,7 +177,7 @@ const APIList = () => {
 
       {isLoading ? (
         <Loader />
-      ) : filteredApis.length === 0 ? (
+      ) : filteredAndSortedApis.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-xl text-gray-600">
             No APIs found. Please add some APIs or adjust your filters.
@@ -210,10 +210,10 @@ const APIList = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentItems.map((api, index) => (
+                {filteredAndSortedApis.map((api, index) => (
                   <tr key={api._id} className="text-gray-700">
                     <td className="border-t-0 px-6 py-4 whitespace-no-wrap">
-                      {indexOfFirstItem + index + 1}
+                      {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td className="border-t-0 px-6 py-4">
                       {getHighlightedText(api.endpoint, searchTerm)}
@@ -263,8 +263,8 @@ const APIList = () => {
           </div>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex-1 text-sm text-gray-700">
-              Showing {indexOfFirstItem + 1} to{" "}
-              {Math.min(indexOfLastItem, totalApis)} of {totalApis} results
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, totalApis)} of {totalApis} results
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -277,7 +277,7 @@ const APIList = () => {
               {renderPaginationButtons()}
               <button
                 onClick={() => paginate(currentPage + 1)}
-                disabled={indexOfLastItem >= totalApis}
+                disabled={currentPage * itemsPerPage >= totalApis}
                 className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
               >
                 <FaChevronRight className="h-4 w-4" />
