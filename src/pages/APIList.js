@@ -18,18 +18,24 @@ const APIList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("updated_at");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [totalApis, setTotalApis] = useState(0);
 
   useEffect(() => {
     fetchApis();
-    // const intervalId = setInterval(fetchApis, 3600000);
-    // return () => clearInterval(intervalId);
-  }, []);
+  }, [currentPage, searchTerm, sortBy, sortOrder]);
 
   const fetchApis = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get(`${BASE_URL}api-list/`);
-      setApis(response?.data);
+      const response = await api.get(`${BASE_URL}api-list/`, {
+        params: {
+          currentPage,
+          page_size: itemsPerPage,
+        },
+      });
+      console.log(response?.data?.data, 'sadfdsafsdad')
+      setApis(response?.data?.data);
+      setTotalApis(response?.data?.total);
     } catch (error) {
       toast.error(`Failed to fetch list: ${error.message}`);
     } finally {
@@ -42,6 +48,7 @@ const APIList = () => {
       await axios.delete(`${BASE_URL}api-list/${id}/`);
       setApis((prevApis) => prevApis.filter((api) => api._id !== id));
       toast.success("API deleted successfully");
+      fetchApis();
     } catch (error) {
       toast.error(`Failed to delete API: ${error.message}`);
     }
@@ -67,7 +74,7 @@ const APIList = () => {
         .includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-  }, [apis, searchTerm, sortBy, sortOrder]);
+  }, [apis, searchTerm]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -76,7 +83,7 @@ const APIList = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const renderPaginationButtons = () => {
-    const pageNumbers = Math.ceil(filteredApis.length / itemsPerPage);
+    const pageNumbers = Math.ceil(totalApis / itemsPerPage);
     const maxVisibleButtons = 5;
     const buttons = [];
 
@@ -234,7 +241,10 @@ const APIList = () => {
                         <FiEye className="inline-block" size={18} />
                       </Link>
                       <Link
-                        to={`/edit-api/${api._id}`}
+                        to={{
+                          pathname: `/edit-api/${api._id}`,
+                          state: { api },
+                        }}
                         className="text-yellow-600 hover:text-yellow-900 mr-3"
                       >
                         <FiEdit className="inline-block" size={18} />
@@ -254,8 +264,7 @@ const APIList = () => {
           <div className="mt-4 flex items-center justify-between">
             <div className="flex-1 text-sm text-gray-700">
               Showing {indexOfFirstItem + 1} to{" "}
-              {Math.min(indexOfLastItem, filteredApis.length)} of{" "}
-              {filteredApis.length} results
+              {Math.min(indexOfLastItem, totalApis)} of {totalApis} results
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -268,7 +277,7 @@ const APIList = () => {
               {renderPaginationButtons()}
               <button
                 onClick={() => paginate(currentPage + 1)}
-                disabled={indexOfLastItem >= filteredApis.length}
+                disabled={indexOfLastItem >= totalApis}
                 className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
               >
                 <FaChevronRight className="h-4 w-4" />
