@@ -264,7 +264,8 @@ const APIList = () => {
           <div className="mt-4 flex items-center justify-between">
             <div className="flex-1 text-sm text-gray-700">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, totalApis)} of {totalApis} results
+              {Math.min(currentPage * itemsPerPage, totalApis)} of {totalApis}{" "}
+              results
             </div>
             <div className="flex items-center space-x-2">
               <button
