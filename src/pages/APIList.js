@@ -1,221 +1,297 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { BASE_URL } from "../constants.js";
-import {
-  FaEye,
-  FaEdit,
-  FaTrash,
-  FaChevronLeft,
-  FaChevronRight,
-} from "react-icons/fa";
+import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import api from "../api/api";
+import { BASE_URL } from "../constants";
+import Loader from "../components/Loader";
 
 const APIList = () => {
   const [apis, setApis] = useState([]);
-  const [filteredApis, setFilteredApis] = useState([]);
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [filters, setFilters] = useState({
-    endpoint: "",
-    status: "",
-    code: "",
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("updated_at");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [totalApis, setTotalApis] = useState(0);
 
-  const fetchApisList = async () => {
+  useEffect(() => {
+    fetchApis();
+  }, [currentPage]);
+
+  const fetchApis = async () => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(`${BASE_URL}api-list/`);
-      setApis(response.data);
-      setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      const response = await api.get(`${BASE_URL}api-list/`, {
+        params: {
+          page: currentPage,
+          page_size: itemsPerPage,
+        },
+      });
+      setApis(response?.data?.data);
+      setTotalApis(response?.data?.total);
     } catch (error) {
-      console.error("Error fetching APIs:", error);
+      toast.error(`Failed to fetch list: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchApisList();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [apis, filters]);
 
   const deleteApi = async (id) => {
     try {
       await axios.delete(`${BASE_URL}api-list/${id}/`);
-      setApis((prevApis) => prevApis.filter((api) => api._id !== id));
+      toast.success("API deleted successfully");
+      fetchApis();
     } catch (error) {
-      console.error("Error deleting API:", error);
+      toast.error(`Failed to delete API: ${error.message}`);
     }
   };
 
-  const applyFilters = () => {
-    let result = apis;
-    if (filters.endpoint) {
-      result = result.filter((api) =>
-        api.api_endpoint.toLowerCase().includes(filters.endpoint.toLowerCase())
+  const getHighlightedText = (text, highlight) => {
+    if (!highlight.trim()) {
+      return text;
+    }
+    const parts = text.split(new RegExp(`(${highlight})`, "gi"));
+    return parts.map((part, index) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <span key={index} className="bg-yellow-200">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
+  const filteredAndSortedApis = useMemo(() => {
+    return apis
+      .filter((api) =>
+        api.endpoint.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+        if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [apis, searchTerm, sortBy, sortOrder]);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const renderPaginationButtons = () => {
+    const pageNumbers = Math.ceil(totalApis / itemsPerPage);
+    const maxVisibleButtons = 5;
+    const buttons = [];
+
+    let startPage = Math.max(
+      1,
+      currentPage - Math.floor(maxVisibleButtons / 2)
+    );
+    let endPage = Math.min(pageNumbers, startPage + maxVisibleButtons - 1);
+
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key="start"
+          onClick={() => paginate(1)}
+          className="pagination-button"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(<span key="start-ellipsis">...</span>);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`pagination-button ${currentPage === i ? "active" : ""}`}
+        >
+          {i}
+        </button>
       );
     }
-    if (filters.status) {
-      result = result.filter(
-        (api) => api.status.toLowerCase() === filters.status.toLowerCase()
+
+    if (endPage < pageNumbers) {
+      if (endPage < pageNumbers - 1) {
+        buttons.push(<span key="end-ellipsis">...</span>);
+      }
+      buttons.push(
+        <button
+          key="end"
+          onClick={() => paginate(pageNumbers)}
+          className="pagination-button"
+        >
+          {pageNumbers}
+        </button>
       );
     }
-    if (filters.code) {
-      result = result.filter((api) => api.code.toString() === filters.code);
-    }
-    setFilteredApis(result);
-    setTotalPages(Math.ceil(result.length / rowsPerPage));
-  };
 
-  const handleFilterChange = (event) => {
-    setFilters({ ...filters, [event.target.name]: event.target.value });
-    setPage(1);
-  };
-
-  const handleChangePage = (newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(1);
+    return buttons;
   };
 
   return (
-    <div className="">
-      <h2 className="text-3xl font-bold mb-6">API List</h2>
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">API List</h2>
 
-      <div className="mb-6 flex flex-wrap gap-4">
-        <input
-          className="px-3 py-2 border rounded"
-          placeholder="Filter by Endpoint"
-          name="endpoint"
-          value={filters.endpoint}
-          onChange={handleFilterChange}
-        />
-        <select
-          className="px-3 py-2 border rounded"
-          name="status"
-          value={filters.status}
-          onChange={handleFilterChange}
-        >
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <input
-          className="px-3 py-2 border rounded"
-          placeholder="Filter by Code"
-          name="code"
-          value={filters.code}
-          onChange={handleFilterChange}
-        />
-      </div>
-
-      <div className="overflow-x-auto bg-white shadow-md rounded">
-        <table className="min-w-full leading-normal">
-          <thead>
-            <tr>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Index
-              </th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                API Endpoint
-              </th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Code
-              </th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Updated At
-              </th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredApis
-              .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map((api, index) => (
-                <tr key={api._id}>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {(page - 1) * rowsPerPage + index + 1}
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {api.api_endpoint}
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {api.status}
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {api.code}
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {new Date(api.updated_at).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm flex flex-row gap-3 flex-wrap">
-                    <Link
-                      to={`/view-api/${api._id}`}
-                      className="text-blue-600 hover:text-blue-900 mr-2"
-                    >
-                      <FaEye className="inline" />
-                    </Link>
-                    <Link
-                      to={`/edit-api/${api._id}`}
-                      className="text-yellow-600 hover:text-yellow-900 mr-2"
-                    >
-                      <FaEdit className="inline" />
-                    </Link>
-                    <button
-                      onClick={() => deleteApi(api._id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <FaTrash className="inline" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <button
-            onClick={() => handleChangePage(page - 1)}
-            disabled={page === 1}
-            className="px-3 py-1  text-gray-800  disabled:opacity-50"
-          >
-            <FaChevronLeft />
-          </button>
-          <span className="px-3 py-1 border-t border-b bg-white">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={() => handleChangePage(page + 1)}
-            disabled={page === totalPages}
-            className="px-3 py-1 text-gray-800  disabled:opacity-50"
-          >
-            <FaChevronRight />
-          </button>
+      <div className="mb-4 flex flex-wrap items-center justify-between">
+        <div className="w-full md:w-1/3 mb-4 md:mb-0">
+          <input
+            type="text"
+            placeholder="Search APIs..."
+            className="w-full px-3 py-2 border rounded-md"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <div className="flex items-center">
-          <span className="mr-2">Rows per page</span>
+        <div className="w-full md:w-2/3 flex flex-wrap justify-end">
           <select
-            value={rowsPerPage}
-            onChange={handleChangeRowsPerPage}
-            className="border rounded px-2 py-1"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="mr-2 px-3 py-2 border rounded-md"
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={25}>25</option>
+            <option value="updated_at">Sort by Last Updated</option>
+            <option value="endpoint">Sort by Endpoint</option>
+            <option value="status">Sort by Status</option>
           </select>
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="px-3 py-2 bg-gray-200 rounded-md"
+          >
+            {sortOrder === "asc" ? "▲" : "▼"}
+          </button>
         </div>
       </div>
+
+      {isLoading ? (
+        <Loader />
+      ) : filteredAndSortedApis.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-xl text-gray-600">
+            No APIs found. Please add some APIs or adjust your filters.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
+            <table className="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative">
+              <thead>
+                <tr className="text-left">
+                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                    Index
+                  </th>
+                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                    Endpoint
+                  </th>
+                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                    Status
+                  </th>
+                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                    Code
+                  </th>
+                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                    Updated At
+                  </th>
+                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredAndSortedApis.map((api, index) => (
+                  <tr key={api._id} className="text-gray-700">
+                    <td className="border-t-0 px-6 py-4 whitespace-no-wrap">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </td>
+                    <td className="border-t-0 px-6 py-4">
+                      {getHighlightedText(api.endpoint, searchTerm)}
+                    </td>
+                    <td className="border-t-0 px-6 py-4">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          api.status
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {api.status ? "OK" : "Not OK"}
+                      </span>
+                    </td>
+                    <td className="border-t-0 px-6 py-4">{api.code || "-"}</td>
+                    <td className="border-t-0 px-6 py-4">
+                      {new Date(api.updated_at).toLocaleString()}
+                    </td>
+                    <td className="border-t-0 px-6 py-4 whitespace-no-wrap">
+                      <Link
+                        to={`/view-api/${api._id}`}
+                        className="text-blue-600 hover:text-blue-900 mr-3"
+                      >
+                        <FiEye className="inline-block" size={18} />
+                      </Link>
+                      <Link
+                        to={{
+                          pathname: `/edit-api/${api._id}`,
+                          state: { api },
+                        }}
+                        className="text-yellow-600 hover:text-yellow-900 mr-3"
+                      >
+                        <FiEdit className="inline-block" size={18} />
+                      </Link>
+                      <button
+                        onClick={() => deleteApi(api._id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FiTrash2 className="inline-block" size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex-1 text-sm text-gray-700">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, totalApis)} of {totalApis}{" "}
+              results
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
+              >
+                <FaChevronLeft className="h-4 w-4" />
+              </button>
+              {renderPaginationButtons()}
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage * itemsPerPage >= totalApis}
+                className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
+              >
+                <FaChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
     </div>
   );
 };
