@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../constants.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from '../api/api.js'
 
 const AddAPI = () => {
   const [addMethod, setAddMethod] = useState("manual");
@@ -54,11 +55,13 @@ const AddAPI = () => {
       if (addMethod === "manual") {
         data = {
           endpoint:endpoint,
-          request_type: requestType,
+          method: requestType,
           headers: headers.filter((h) => h.key && h.value),
           params: params.filter((p) => p.key && p.value),
           body: body,
         };
+        await api.post('api/api-list/', data);
+        toast.success("API added successfully!");
       } else {
         const fileReader = new FileReader();
         const jsonData = await new Promise((resolve, reject) => {
@@ -66,11 +69,11 @@ const AddAPI = () => {
           fileReader.onerror = (error) => reject(error);
           fileReader.readAsText(jsonFile);
         });
-        data = jsonData;
+        data = jsonData
+        await api.post('api/upload-json/', data);
+        toast.success("File uploaded successfully!");
       }
-
-      await axios.post(`${BASE_URL}api-list/`, data);
-      toast.success("API added successfully!");
+      
       navigate("/api-list");
     } catch (error) {
       console.error("Error adding API:", error);
