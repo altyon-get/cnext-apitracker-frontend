@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { adminLogin } from "../redux/slices/adminSlice";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -66,9 +66,6 @@ const Login = () => {
               className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          {error && (
-            <div className="p-2 text-red-500 bg-red-100 rounded">{error}</div>
-          )}
           <div>
             <button
               type="submit"
@@ -82,6 +79,11 @@ const Login = () => {
           </div>
         </form>
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
     </div>
   );
 };
