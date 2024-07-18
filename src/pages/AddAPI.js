@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { FaPlus, FaTrash, FaChevronDown } from "react-icons/fa";
+import { FaPlus, FaTrash } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../api/api.js";
 
@@ -14,6 +14,7 @@ const AddAPI = () => {
   const [body, setBody] = useState("");
   const [jsonFile, setJsonFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateManualEntry = () => {
@@ -40,14 +41,25 @@ const AddAPI = () => {
     return errors;
   };
 
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      setErrors(
+        addMethod === "manual" ? validateManualEntry() : validateJsonUpload()
+      );
+    }
+  }, [endpoint, requestType, headers, params, body, jsonFile]);
+
   const handleSubmit = async (e) => {
+    console.log("test");
     e.preventDefault();
     const validationErrors =
-      addMethod === "manual" ? validateManualEntry() : validateJsonUpload();
+    addMethod === "manual" ? validateManualEntry() : validateJsonUpload();
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+    setErrors(validationErrors);
+    return;
     }
+
+    setLoading(true);
 
     try {
       let data;
@@ -75,12 +87,12 @@ const AddAPI = () => {
 
       navigate("/api-list");
     } catch (error) {
-    
       console.error("Error adding API:", error);
       toast.error(
-        error.response?.data?.error ||
-          "An error occurred while adding the API."
+        error.response?.data?.error || "An error occurred while adding the API."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,21 +112,12 @@ const AddAPI = () => {
     });
   };
 
-  const isValidJSON = (str) => {
-    try {
-      JSON.parse(str);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const renderManualEntryForm = () => (
     <>
       <div className="flex mb-4">
         <div className="pr-2">
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            Request Type
+            Method
           </label>
           <select
             value={requestType}
@@ -241,8 +244,9 @@ const AddAPI = () => {
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          rows="4"
+          className={
+            'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rows="5" '
+          }
         />
       </div>
     </>
@@ -251,7 +255,7 @@ const AddAPI = () => {
   const renderJsonUploadForm = () => (
     <div className="mb-4">
       <label className="block text-gray-700 text-sm font-bold mb-2">
-        Upload JSON File
+        Upload JSON
       </label>
       <input
         type="file"
@@ -262,23 +266,23 @@ const AddAPI = () => {
         }`}
       />
       {errors.jsonFile && (
-        <p className="text-red-500 text-xs italic">{errors.jsonFile}</p>
+        <p className="text-red-500 text-xs">{errors.jsonFile}</p>
       )}
     </div>
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-100 rounded-lg shadow-lg">
+    <div className="container mx-auto">
       <h2 className="text-2xl font-bold mb-4">Add API</h2>
-      <div className="mb-4">
-        <div>
-          <label className="inline-flex items-center mr-4">
+      <div className="container mx-auto p-4">
+        <div className="flex space-x-4">
+          <label className="inline-flex items-center">
             <input
               type="radio"
               value="manual"
               checked={addMethod === "manual"}
-              onChange={() => setAddMethod("manual")}
-              className="form-radio"
+              onChange={(e) => setAddMethod(e.target.value)}
+              className="form-radio text-blue-500"
             />
             <span className="ml-2">Manual Entry</span>
           </label>
@@ -287,13 +291,14 @@ const AddAPI = () => {
               type="radio"
               value="json"
               checked={addMethod === "json"}
-              onChange={() => setAddMethod("json")}
-              className="form-radio"
+              onChange={(e) => setAddMethod(e.target.value)}
+              className="form-radio text-blue-500"
             />
             <span className="ml-2">Upload JSON</span>
           </label>
         </div>
       </div>
+
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-lg shadow-md"
@@ -303,22 +308,21 @@ const AddAPI = () => {
           : renderJsonUploadForm()}
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+          disabled={loading}
+          className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4 ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          Add API
+          {addMethod === "manual"
+            ? loading
+              ? "Adding..."
+              : "Add API"
+            : loading
+            ? "Uploading..."
+            : "Upload"}
         </button>
       </form>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer />
     </div>
   );
 };
