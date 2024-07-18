@@ -49,8 +49,13 @@ export const adminLogin = createAsyncThunk(
       localStorage.setItem("token", res?.data?.token);
       return res;
     } catch (error) {
-      // console.log(error.response.data.error,'error in adminLogin slice')
-      return rejectWithValue(error?.response?.data?.error);
+      if(error.response){
+        return rejectWithValue(error?.response?.data?.error);
+      }
+      else{
+        return rejectWithValue(error?.message);
+      }
+
     }
   }
 );
