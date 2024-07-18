@@ -5,7 +5,11 @@ import "chart.js/auto";
 import api from "../api/api";
 import Loader from "../components/Loader";
 import { FaCopy } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FiEdit2, FiEye, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
+import { AiFillEdit } from "react-icons/ai";
 
 const ViewAPI = () => {
   const { id } = useParams();
@@ -82,9 +86,14 @@ const ViewAPI = () => {
     return new Date(dateString).toLocaleString(undefined, options);
   };
 
+  function formatDateShort(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
   const chartData = useMemo(
     () => ({
-      labels: logs.map((log) => formatDate(log.timestamp)),
+      labels: logs.map((log) => formatDateShort(log.timestamp)),
       datasets: [
         {
           label: "Response Time",
@@ -125,28 +134,95 @@ const ViewAPI = () => {
     maintainAspectRatio: false,
   };
 
+  const paginate = (pageNumber) => setPage(pageNumber);
+
   const totalPages = Math.ceil(totalLogs / pageSize);
 
+  const renderPaginationButtons = () => {
+    const pageNumbers = Math.ceil(totalLogs / pageSize);
+    const maxVisibleButtons = 5;
+    const buttons = [];
+
+    let startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
+    let endPage = Math.min(pageNumbers, startPage + maxVisibleButtons - 1);
+
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key="start"
+          onClick={() => paginate(1)}
+          className="pagination-button"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(<span key="start-ellipsis">...</span>);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`pagination-button ${page === i ? "active" : ""}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    if (endPage < pageNumbers) {
+      if (endPage < pageNumbers - 1) {
+        buttons.push(<span key="end-ellipsis">...</span>);
+      }
+      buttons.push(
+        <button
+          key="end"
+          onClick={() => paginate(pageNumbers)}
+          className="pagination-button"
+        >
+          {pageNumbers}
+        </button>
+      );
+    }
+
+    return buttons;
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen p-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className=" min-h-screen">
+      <div className=" mx-auto bg-white rounded-lg  overflow-hidden">
+        <h2 className="text-2xl font-bold mb-4">API Details</h2>
         {apiData ? (
-          <div className="p-6 bg-gray-200 text-black flex gap-2 flex-col">
-            <h2 className="text-3xl font-bold mb-4">API Details</h2>
-            <p className="text-lg flex  items-center gap-2">
-              <span className="font-semibold">Endpoint:</span>
-              <span className="text-blue-600 hover:text-blue-700">
+          <div className="p-6 bg-gray-200 text-black flex flex-col gap-2">
+            <div className="flex items-center">
+              <span className="text-lg ">Endpoint:</span>
+              <span className="text-blue-600 hover:text-blue-700 ml-2">
                 {apiData.endpoint}
               </span>
-              <FaCopy
-                className="cursor-pointer text-gray-500"
-                onClick={()=>handleCopy()}
-              />
-            </p>
-            <p className="text-lg">
-              <span className={`font-semibold`}>Status:</span>
+              {/* <FaCopy
+                  className="cursor-pointer text-gray-500 ml-2"
+                  onClick={handleCopy}
+                /> */}
+              <Link
+                to={`/edit-api/${apiData._id}`}
+                className="text-gray-500 hover:text-gray-700 ml-2"
+                title="Edit API"
+              >
+                <AiFillEdit size={18} />
+                {/* <FiEdit2 size={18} /> */}
+              </Link>
+            </div>
+            {/* <div className="flex items-center">
+              <span className="text-lg">Status:</span>
               <span
-                className={`ml-2 font-semibold ${
+                className={`ml-2 ${
                   apiData.status === 1
                     ? "bg-green-500 text-white px-2 py-[.3rem] rounded-md"
                     : "bg-red-500 px-2 py-[.3rem] text-white rounded-md"
@@ -154,108 +230,117 @@ const ViewAPI = () => {
               >
                 {apiData.status === 1 ? "OK" : "NOT OK"}
               </span>
-            </p>
-            <p className="text-lg">
-              <span className="font-semibold">Code:</span> {apiData.code}
-            </p>
-            <p className="text-lg">
-              <span className="font-semibold">Updated At:</span>{" "}
-              {formatDate(apiData.updated_at)}
-            </p>
+            </div> */}
+            <div className="flex items-center">
+              <span className="text-lg ">Code:</span>
+              <span className="ml-2 text-gray-500">{apiData.code}</span>
+              <span
+                className={`px-1 inline-flex text-lg leading-5 font-semibold rounded-full mx-2 ${
+                  apiData.status
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {apiData.status ? <FiCheck /> : <FiX />}
+              </span>
+              |
+              <span className="ml-2 text-lg text-gray-500">
+                {formatDate(apiData.updated_at)}
+              </span>
+            </div>
+            <button
+              onClick={handleHitAndLog}
+              disabled={isLoading}
+              className={`w-fit mt-2 ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white font-bold py-1 px-3 rounded  focus:outline-none transition duration-300 ease-in-out`}
+            >
+              {isLoading ? "Loading..." : "Hit API"}
+            </button>
           </div>
         ) : (
           <Loader />
         )}
 
-        <div className="p-6">
-          <button
-            onClick={handleHitAndLog}
-            disabled={isLoading}
-            className={`${
-              isLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-            } text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out`}
-          >
-            {isLoading ? "Loading..." : "Hit and Log API"}
-          </button>
-
-          <h3 className="text-2xl font-bold mt-8 mb-4 text-gray-800">
-            API Call Logs
-          </h3>
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-300 shadow-sm rounded-lg overflow-hidden">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Index
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Timestamp
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Response Time
-                      </th>
+        <div className="flex gap-8">
+          <div className="w-1/3">
+            <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800">
+              API Call Logs
+            </h3>
+            <div className="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
+              <table className="min-w-full bg-white">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="w-1/8 py-2 px-4 text-left text-gray-600 font-semibold">
+                      #
+                    </th>
+                    <th className="w-2/8 py-2 px-4 text-left text-gray-600 font-semibold">
+                      Timestamp
+                    </th>
+                    <th className="w-2/8 py-2 px-4 text-left text-gray-600 font-semibold">
+                      Code
+                    </th>
+                    <th className="w-2/8 py-2 px-4 text-left text-gray-600 font-semibold">
+                      Latency
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {logs.map((log, index) => (
+                    <tr
+                      key={log._id}
+                      className="border-b border-gray-200 hover:bg-gray-50"
+                    >
+                      <td className="py-2 px-4">
+                        {(page - 1) * pageSize + index + 1}
+                      </td>
+                      <td className="py-2 px-4">{formatDate(log.timestamp)}</td>
+                      <td className="py-2 px-4">{log.status_code || "---"}</td>
+                      <td className="py-2 px-4">{log.response_time}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {logs.map((log, index) => (
-                      <tr key={log._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {(page - 1) * pageSize + index + 1}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {formatDate(log.timestamp)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {log.response_time}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-              <div className="flex justify-center mt-6 space-x-2">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1}
-                  className={`px-4 py-2 rounded-md ${
-                    page === 1
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  } text-white transition duration-300 ease-in-out`}
-                >
-                  Previous
-                </button>
-                <span className="px-4 py-2 text-gray-700">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page === totalPages}
-                  className={`px-4 py-2 rounded-md ${
-                    page === totalPages
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  } text-white transition duration-300 ease-in-out`}
-                >
-                  Next
-                </button>
-              </div>
+            <div className="flex justify-center items-center mt-6 gap-12">
+              <button
+                onClick={() => page > 1 && paginate(page - 1)}
+                className={`px-3 py-2 bg-gray-200 rounded-md ${
+                  page === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={page === 1}
+              >
+                <FaChevronLeft />
+              </button>
 
-              <h3 className="text-2xl font-bold mt-12 mb-6 text-gray-800">
-                Response Time Graph
-              </h3>
-              <div className="w-full h-96 bg-white p-4 rounded-lg shadow-lg">
-                <Line data={chartData} options={chartOptions} />
-              </div>
-            </>
-          )}
+              <div className="flex space-x-1">{renderPaginationButtons()}</div>
+
+              <button
+                onClick={() =>
+                  page < Math.ceil(totalLogs / pageSize) && paginate(page + 1)
+                }
+                className={`px-3 py-2 bg-gray-200 rounded-md ${
+                  page === Math.ceil(totalLogs / pageSize)
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={page === Math.ceil(totalLogs / pageSize)}
+              >
+                <FaChevronRight />
+              </button>
+            </div>
+          </div>
+          <div className="w-2/3 flex flex-col justify-center items-center pt-12 px-12">
+            <div className="relative w-full h-96 bg-white p-4 rounded-lg shadow-lg flex justify-center">
+              <Line data={chartData} options={chartOptions} />
+            </div>
+            <h3 className="text-s font-bold mt-8 mb-4 text-gray-800">
+              Response Time Chart
+            </h3>
+          </div>
         </div>
       </div>
       <ToastContainer
