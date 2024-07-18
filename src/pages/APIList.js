@@ -200,8 +200,11 @@ const APIList = () => {
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     #
                   </th>
-                  <th className="w-7/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-5/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Endpoint
+                  </th>
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                    Method
                   </th>
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Status
@@ -209,7 +212,7 @@ const APIList = () => {
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Code
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-2/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Updated At
                   </th>
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
@@ -231,6 +234,21 @@ const APIList = () => {
                       title={api.endpoint}
                     >
                       {getHighlightedText(api.endpoint, searchTerm)}
+                    </td>
+                    <td
+                      className={`py-2 px-4 item-center flex ${
+                        api.method === "GET"
+                          ? "text-green-300"
+                          : api.method === "POST"
+                          ? "text-blue-300"
+                          : api.method === "PUT"
+                          ? "text-yellow-300"
+                          : api.method === "DELETE"
+                          ? "text-red-300"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {api.method}
                     </td>
                     <td className="py-2 px-4">
                       <span
