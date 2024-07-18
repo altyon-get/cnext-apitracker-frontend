@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { FiEdit, FiEye, FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaPlus, FaTrash } from "react-icons/fa";
+import { AiFillEdit } from "react-icons/ai";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../api/api";
@@ -44,7 +47,7 @@ const APIList = () => {
 
   const deleteApi = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}api-list/${id}/`);
+      await api.delete(`api/api-list/${id}/`);
       toast.success("API deleted successfully");
       fetchApis();
     } catch (error) {
@@ -147,7 +150,6 @@ const APIList = () => {
     navigate(`/view-api/${apiId}`);
   };
 
-
   return (
     <div className="container mx-auto ">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">API List</h2>
@@ -245,17 +247,21 @@ const APIList = () => {
                     <td className="py-2 px-4">
                       {new Date(api.updated_at).toLocaleString()}
                     </td>
-                    <td className="py-2 px-4 flex space-x-2 my-2">
+                    <td className="py-2 px-4 flex space-x-4 my-2">
                       <Link
                         to={`/edit-api/${api._id}`}
-                        className="text-green-500 hover:text-green-700"
+                        className="text-gray-500 hover:text-gray-700"
                         title="Edit API"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <FiEdit size={18} />
+                        <AiFillEdit size={18} />
                       </Link>
                       <button
-                        onClick={() => deleteApi(api._id)}
-                        className="text-red-500 hover:text-red-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteApi(api._id);
+                        }}
+                        className="text-gray-500 hover:text-gray-700"
                         title="Delete API"
                       >
                         <FiTrash2 size={18} />

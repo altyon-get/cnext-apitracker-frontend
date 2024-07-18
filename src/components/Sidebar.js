@@ -40,7 +40,7 @@ const Sidebar = () => {
               to="/add-api"
               className={`block px-6 py-3 flex items-center transition duration-200 ${location.pathname === "/add-api" ? "bg-gray-700" : "hover:bg-gray-700"}`}
             >
-              <FiPlus className="mr-2" /> Add API to List
+              <FiPlus className="mr-2" /> Add API
             </Link>
           </li>
         </ul>

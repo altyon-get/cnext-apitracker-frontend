@@ -22,14 +22,6 @@ const AddAPI = () => {
     if (!endpoint.trim()) {
       errors.endpoint = "API Endpoint is required.";
     }
-    if (
-      requestType !== "GET" &&
-      params.length === 1 &&
-      !params[0].key &&
-      !params[0].value
-    ) {
-      errors.params = "Parameters are required for non-GET requests.";
-    }
     return errors;
   };
 
