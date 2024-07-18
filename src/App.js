@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import AddAPI from "./pages/AddAPI";
+import APIList from "./pages/APIList";
 import ViewAPI from "./pages/ViewAPI";
 import EditAPI from "./pages/EditAPI";
 import { LoginRoute, ProtectedRoute } from "./routes/PrivateRoutes";
