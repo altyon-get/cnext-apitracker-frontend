@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { FiEdit, FiEye, FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import api from "../api/api";
 import { BASE_URL } from "../constants";
 import Loader from "../components/Loader";
@@ -142,25 +142,31 @@ const APIList = () => {
     return buttons;
   };
 
+  const navigate = useNavigate();
+  const handleRowClick = (apiId) => {
+    navigate(`/view-api/${apiId}`);
+  };
+
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">API List</h2>
+    <div className="container mx-auto ">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">API List</h2>
 
       <div className="mb-4 flex flex-wrap items-center justify-between">
         <div className="w-full md:w-1/3 mb-4 md:mb-0">
           <input
             type="text"
             placeholder="Search APIs..."
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="w-full md:w-2/3 flex flex-wrap justify-end">
+        <div className="w-full md:w-2/3 flex flex-wrap justify-end items-center">
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="mr-2 px-3 py-2 border rounded-md"
+            className="mr-2 px-3 py-2 border border-gray-300 rounded-md"
           >
             <option value="updated_at">Sort by Last Updated</option>
             <option value="endpoint">Sort by Endpoint</option>
@@ -168,7 +174,7 @@ const APIList = () => {
           </select>
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            className="px-3 py-2 bg-gray-200 rounded-md"
+            className="px-3 py-2 bg-gray-200 rounded-md flex items-center justify-center"
           >
             {sortOrder === "asc" ? "▲" : "▼"}
           </button>
@@ -186,74 +192,73 @@ const APIList = () => {
       ) : (
         <>
           <div className="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
-            <table className="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative">
+            <table className="min-w-full bg-white">
               <thead>
-                <tr className="text-left">
-                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-                    Index
+                <tr className="w-full bg-gray-100 border-b-2 border-gray-300">
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                    #
                   </th>
-                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                  <th className="w-7/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Endpoint
                   </th>
-                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Status
                   </th>
-                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Code
                   </th>
-                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Updated At
                   </th>
-                  <th className="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white">
                 {filteredAndSortedApis.map((api, index) => (
-                  <tr key={api._id} className="text-gray-700">
-                    <td className="border-t-0 px-6 py-4 whitespace-no-wrap">
+                  <tr
+                    className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleRowClick(api._id)}
+                  >
+                    <td className="py-2 px-4">
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
-                    <td className="border-t-0 px-6 py-4">
+                    <td
+                      className="py-2 px-4 truncate max-w-[200px]"
+                      title={api.endpoint}
+                    >
                       {getHighlightedText(api.endpoint, searchTerm)}
                     </td>
-                    <td className="border-t-0 px-6 py-4">
+                    <td className="py-2 px-4">
                       <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        className={`px-2 inline-flex text-s leading-5 font-semibold rounded-full ${
                           api.status
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {api.status ? "OK" : "Not OK"}
+                        {api.status ? <FiCheck /> : <FiX />}
                       </span>
                     </td>
-                    <td className="border-t-0 px-6 py-4">{api.code || "-"}</td>
-                    <td className="border-t-0 px-6 py-4">
+                    <td className="py-2 px-4">{api.code || "-"}</td>
+                    <td className="py-2 px-4">
                       {new Date(api.updated_at).toLocaleString()}
                     </td>
-                    <td className="border-t-0 px-6 py-4 whitespace-no-wrap">
+                    <td className="py-2 px-4 flex space-x-2 my-2">
                       <Link
-                        to={`/view-api/${api._id}`}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
+                        to={`/edit-api/${api._id}`}
+                        className="text-green-500 hover:text-green-700"
+                        title="Edit API"
                       >
-                        <FiEye className="inline-block" size={18} />
-                      </Link>
-                      <Link
-                        to={{
-                          pathname: `/edit-api/${api._id}`,
-                          state: { api },
-                        }}
-                        className="text-yellow-600 hover:text-yellow-900 mr-3"
-                      >
-                        <FiEdit className="inline-block" size={18} />
+                        <FiEdit size={18} />
                       </Link>
                       <button
                         onClick={() => deleteApi(api._id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-500 hover:text-red-700"
+                        title="Delete API"
                       >
-                        <FiTrash2 className="inline-block" size={18} />
+                        <FiTrash2 size={18} />
                       </button>
                     </td>
                   </tr>
@@ -261,29 +266,34 @@ const APIList = () => {
               </tbody>
             </table>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex-1 text-sm text-gray-700">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, totalApis)} of {totalApis}{" "}
-              results
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
-              >
-                <FaChevronLeft className="h-4 w-4" />
-              </button>
-              {renderPaginationButtons()}
-              <button
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage * itemsPerPage >= totalApis}
-                className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 disabled:opacity-50"
-              >
-                <FaChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+
+          <div className="flex justify-center items-center mt-6 gap-12">
+            <button
+              onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+              className={`px-3 py-2 bg-gray-200 rounded-md ${
+                currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={currentPage === 1}
+            >
+              <FaChevronLeft />
+            </button>
+
+            <div className="flex space-x-1">{renderPaginationButtons()}</div>
+
+            <button
+              onClick={() =>
+                currentPage < Math.ceil(totalApis / itemsPerPage) &&
+                paginate(currentPage + 1)
+              }
+              className={`px-3 py-2 bg-gray-200 rounded-md ${
+                currentPage === Math.ceil(totalApis / itemsPerPage)
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={currentPage === Math.ceil(totalApis / itemsPerPage)}
+            >
+              <FaChevronRight />
+            </button>
           </div>
         </>
       )}
