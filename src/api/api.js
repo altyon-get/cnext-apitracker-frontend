@@ -1,11 +1,12 @@
 import axios from "axios";
+import config from "../config";
 
 const getToken = () => {
   return localStorage.getItem("token");
 };
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/",
+  baseURL: config.apiUrl,
   headers: {
     "Content-Type": "application/json",
   },
