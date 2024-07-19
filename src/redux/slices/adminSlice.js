@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from '../../api/api'
 
 const adminSlice = createSlice({
   name: "admin",
@@ -34,8 +34,8 @@ export const adminLogin = createAsyncThunk(
   "admin/login",
   async (info, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
-        `http://127.0.0.1:8000/login/`,
+      const res = await api.post(
+        `login/`,
         {
           username: info.username,
           password: info.password,

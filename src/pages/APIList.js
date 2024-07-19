@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { FiEdit, FiEye, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { FaPlus, FaTrash } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 
 import { ToastContainer, toast } from "react-toastify";
