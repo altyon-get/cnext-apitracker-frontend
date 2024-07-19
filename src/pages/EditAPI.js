@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const EditAPI = () => {
   const { id } = useParams();
@@ -12,6 +13,7 @@ const EditAPI = () => {
   const [body, setBody] = useState("");
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const addField = (setter) => {
     setter((prev) => [...prev, { key: "", value: "" }]);
@@ -38,7 +40,10 @@ const EditAPI = () => {
         setRequestType(api.method);
         setHeaders(
           api.headers && Object.keys(api.headers).length > 0
-            ? Object.entries(api.headers).map(([key, value]) => ({ key, value }))
+            ? Object.entries(api.headers).map(([key, value]) => ({
+                key,
+                value,
+              }))
             : [{ key: "", value: "" }]
         );
         setParams(
@@ -46,13 +51,21 @@ const EditAPI = () => {
             ? Object.entries(api.params).map(([key, value]) => ({ key, value }))
             : [{ key: "", value: "" }]
         );
-        setBody(api.body ? (typeof api.body === 'object' ? JSON.stringify(api.body, null, 2) : api.body) : "");
+        setBody(
+          api.body
+            ? typeof api.body === "object"
+              ? JSON.stringify(api.body, null, 2)
+              : api.body
+            : ""
+        );
       })
       .catch((error) => console.error("Error fetching API:", error));
   }, [id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    setLoading(true);
     const payload = {
       endpoint: endpoint,
       method: requestType,
@@ -75,7 +88,10 @@ const EditAPI = () => {
       .then(() => {
         navigate("/api-list");
       })
-      .catch((error) => console.error("Error updating API:", error));
+      .catch((error) => toast.error(error))
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -226,7 +242,7 @@ const EditAPI = () => {
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Save
+          {loading ? "Saving...." : "Save"}
         </button>
       </form>
     </div>

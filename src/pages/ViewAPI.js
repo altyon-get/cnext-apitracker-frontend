@@ -3,10 +3,9 @@ import { useParams } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import api from "../api/api";
-import Loader from "../components/Loader";
-import { FaCopy } from "react-icons/fa";
+import Loader from "../utils/Loader";
 import { Link } from "react-router-dom";
-import { FiEdit2, FiEye, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { AiFillEdit } from "react-icons/ai";
@@ -19,17 +18,6 @@ const ViewAPI = () => {
   const [pageSize] = useState(10);
   const [totalLogs, setTotalLogs] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(apiData.endpoint)
-      .then(() => {
-        toast.success("Copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
-  };
 
   useEffect(() => {
     fetchApiData();
@@ -56,7 +44,6 @@ const ViewAPI = () => {
       })
       .catch((error) => {
         setIsLoading(false);
-        console.error("Error fetching logs:", error);
       });
   };
 
@@ -88,7 +75,7 @@ const ViewAPI = () => {
 
   function formatDateShort(timestamp) {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
 
   const chartData = useMemo(
@@ -135,8 +122,6 @@ const ViewAPI = () => {
   };
 
   const paginate = (pageNumber) => setPage(pageNumber);
-
-  const totalPages = Math.ceil(totalLogs / pageSize);
 
   const renderPaginationButtons = () => {
     const pageNumbers = Math.ceil(totalLogs / pageSize);
@@ -206,31 +191,14 @@ const ViewAPI = () => {
               <span className="text-blue-600 hover:text-blue-700 ml-2">
                 {apiData.endpoint}
               </span>
-              {/* <FaCopy
-                  className="cursor-pointer text-gray-500 ml-2"
-                  onClick={handleCopy}
-                /> */}
               <Link
                 to={`/edit-api/${apiData._id}`}
                 className="text-gray-500 hover:text-gray-700 ml-2"
                 title="Edit API"
               >
                 <AiFillEdit size={18} />
-                {/* <FiEdit2 size={18} /> */}
               </Link>
             </div>
-            {/* <div className="flex items-center">
-              <span className="text-lg">Status:</span>
-              <span
-                className={`ml-2 ${
-                  apiData.status === 1
-                    ? "bg-green-500 text-white px-2 py-[.3rem] rounded-md"
-                    : "bg-red-500 px-2 py-[.3rem] text-white rounded-md"
-                }`}
-              >
-                {apiData.status === 1 ? "OK" : "NOT OK"}
-              </span>
-            </div> */}
             <div className="flex items-center">
               <span className="text-lg ">Code:</span>
               <span className="ml-2 text-gray-500">{apiData.code}</span>

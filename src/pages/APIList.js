@@ -1,17 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { FiEdit, FiEye, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { FaPlus, FaTrash } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../api/api";
 import { BASE_URL } from "../constants";
-import Loader from "../components/Loader";
+import Loader from "../utils/Loader";
 
 const APIList = () => {
   const [apis, setApis] = useState([]);
@@ -238,13 +236,13 @@ const APIList = () => {
                     <td
                       className={`py-2 px-4 item-center flex ${
                         api.method === "GET"
-                          ? "text-green-300"
+                          ? "text-green-400 font-semibold"
                           : api.method === "POST"
-                          ? "text-blue-300"
+                          ? "text-blue-400 font-semibold"
                           : api.method === "PUT"
-                          ? "text-yellow-300"
+                          ? "text-yellow-600 font-semibold"
                           : api.method === "DELETE"
-                          ? "text-red-300"
+                          ? "text-red-300 font-semibold"
                           : "text-gray-500"
                       }`}
                     >

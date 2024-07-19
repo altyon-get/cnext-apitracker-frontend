@@ -42,13 +42,12 @@ const AddAPI = () => {
   }, [endpoint, requestType, headers, params, body, jsonFile]);
 
   const handleSubmit = async (e) => {
-    console.log("test");
     e.preventDefault();
     const validationErrors =
-    addMethod === "manual" ? validateManualEntry() : validateJsonUpload();
+      addMethod === "manual" ? validateManualEntry() : validateJsonUpload();
     if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
+      setErrors(validationErrors);
+      return;
     }
 
     setLoading(true);
@@ -79,7 +78,6 @@ const AddAPI = () => {
 
       navigate("/api-list");
     } catch (error) {
-      console.error("Error adding API:", error);
       toast.error(
         error.response?.data?.error || "An error occurred while adding the API."
       );
