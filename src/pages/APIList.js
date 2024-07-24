@@ -8,7 +8,6 @@ import { AiFillEdit } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../api/api";
-import { BASE_URL } from "../constants";
 import Loader from "../utils/Loader";
 
 const APIList = () => {
@@ -28,7 +27,7 @@ const APIList = () => {
   const fetchApis = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get(`${BASE_URL}api-list/`, {
+      const response = await api.get('api/api-list/', {
         params: {
           page: currentPage,
           page_size: itemsPerPage,
