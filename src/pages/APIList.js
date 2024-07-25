@@ -33,7 +33,6 @@ const APIList = () => {
           page_size: itemsPerPage,
         },
       });
-      console.log(response?.data?.data, ' -test')
       setApis(response?.data?.data);
       setTotalApis(response?.data?.total);
     } catch (error) {
