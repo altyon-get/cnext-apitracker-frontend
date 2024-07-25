@@ -312,7 +312,6 @@ const AddAPI = () => {
             : "Upload"}
         </button>
       </form>
-      <ToastContainer />
     </div>
   );
 };

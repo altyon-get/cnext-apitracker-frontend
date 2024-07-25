@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { adminLogin } from "../redux/slices/adminSlice";
-import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -12,6 +12,16 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const message = new URLSearchParams(location.search).get("message");
+
+  useEffect(() => {
+    if (message) {
+      toast.info(message, {
+        duration: 3000,
+      });
+    }
+  }, [message]);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -27,11 +37,10 @@ const Login = () => {
         navigate("/api-list");
       }
     } catch (err) {
-      // console.error(err);
-      toast.error(err, {
-        duration: 1000,
+      toast.error(err.message || "An error occurred during login.", {
+        duration: 3000,
       });
-      setError(err || "An error occurred during login.");
+      setError(err.message || "An error occurred during login.");
     } finally {
       setLoading(false);
     }
@@ -42,6 +51,7 @@ const Login = () => {
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Admin Login</h2>
         <form className="space-y-6" onSubmit={handleFormSubmit}>
+          {error && <p className="text-red-500">{error}</p>}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Username
@@ -79,11 +89,6 @@ const Login = () => {
           </div>
         </form>
       </div>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-      />
     </div>
   );
 };
