@@ -24,41 +24,52 @@ const ViewAPI = () => {
     fetchLogs();
   }, [id, page, pageSize]);
 
-  const fetchApiData = () => {
-    api
-      .get(`api/api-list/${id}/`)
-      .then((response) => setApiData(response.data))
-      .catch((error) => console.error("Error fetching API:", error));
+  const fetchApiData = async () => {
+    try {
+      const response = await api.get(`api/api-list/${id}/`);
+      setApiData(response.data);
+    } catch (error) {
+      toast.error(
+        "Error fetching API: " + (error.response?.data?.detail || error.message)
+      );
+      console.error("Error fetching API:", error);
+    }
   };
 
-  const fetchLogs = () => {
+  const fetchLogs = async () => {
     setIsLoading(true);
-    api
-      .get(`api/api-list/${id}/call-logs/`, {
+    try {
+      const response = await api.get(`api/api-list/${id}/call-logs/`, {
         params: { page, page_size: pageSize },
-      })
-      .then((response) => {
-        setLogs(response.data.call_logs);
-        setTotalLogs(response.data.total_logs);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsLoading(false);
       });
+      setLogs(response.data.call_logs);
+      setTotalLogs(response.data.total_logs);
+    } catch (error) {
+      // toast.error(
+      //   "Error fetching logs: " +
+      //     (error.response?.data?.detail || error.message)
+      // );
+      console.error("Error fetching logs:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleHitAndLog = () => {
+  const handleHitAndLog = async () => {
     setIsLoading(true);
-    api
-      .get(`api/hit-api/${id}`)
-      .then(() => {
-        fetchApiData();
-        fetchLogs();
-      })
-      .catch((error) => {
-        console.error("Error hitting and logging API:", error);
-        setIsLoading(false);
-      });
+    try {
+      await api.post(`api/hit-api/${id}/`);
+      fetchApiData();
+      fetchLogs();
+    } catch (error) {
+      // toast.error(
+      //   error?.response?.data?.detail ||
+      //     error?.message ||
+      //     "Error hitting and logging API"
+      // );
+      console.error("Error hitting and logging API:", error);
+      setIsLoading(false);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -181,7 +192,7 @@ const ViewAPI = () => {
   };
 
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen">
       <div className=" mx-auto bg-white rounded-lg  overflow-hidden">
         <h2 className="text-2xl font-bold mb-4">API Details</h2>
         {apiData ? (
@@ -311,11 +322,6 @@ const ViewAPI = () => {
           </div>
         </div>
       </div>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-      />
     </div>
   );
 };

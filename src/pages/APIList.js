@@ -5,7 +5,7 @@ import { FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../api/api";
 import Loader from "../utils/Loader";
@@ -14,7 +14,7 @@ const APIList = () => {
   const [apis, setApis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(12);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("updated_at");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -148,7 +148,7 @@ const APIList = () => {
   };
 
   return (
-    <div className="container mx-auto ">
+    <div className="container mx-auto h-full flex flex-col">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">API List</h2>
 
       <div className="mb-4 flex flex-wrap items-center justify-between">
@@ -222,6 +222,7 @@ const APIList = () => {
                   <tr
                     className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleRowClick(api._id)}
+                    key={api._id}
                   >
                     <td className="py-2 px-4">
                       {(currentPage - 1) * itemsPerPage + index + 1}
@@ -318,11 +319,6 @@ const APIList = () => {
           </div>
         </>
       )}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-      />
     </div>
   );
 };
