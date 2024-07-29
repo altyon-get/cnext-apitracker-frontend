@@ -4,17 +4,18 @@ import { useNavigate } from "react-router-dom";
 import { FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
-
+import { format } from "date-fns";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../api/api";
 import Loader from "../utils/Loader";
+import ConfirmationModal from "../components/ConfirmationModal";
 
-const APIList = () => {
+const APIList = ({ openModal }) => {
   const [apis, setApis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12);
+  const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("updated_at");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -27,7 +28,7 @@ const APIList = () => {
   const fetchApis = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('api/api-list/', {
+      const response = await api.get("api/api-list/", {
         params: {
           page: currentPage,
           page_size: itemsPerPage,
@@ -52,6 +53,17 @@ const APIList = () => {
     }
   };
 
+  const handleDeleteClick = (id) => {
+    openModal(
+      "Confirm Delete",
+      "Do you really want to delete this API?",
+      "APIList",
+      () => {
+        deleteApi(id);
+      }
+    );
+  };
+
   const getHighlightedText = (text, highlight) => {
     if (!highlight.trim()) {
       return text;
@@ -74,11 +86,16 @@ const APIList = () => {
         api.endpoint.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .sort((a, b) => {
-        if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-        if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+        if (a[sortBy] < b[sortBy]) return sortOrder === "desc" ? -1 : 1;
+        if (a[sortBy] > b[sortBy]) return sortOrder === "desc" ? 1 : -1;
         return 0;
       });
   }, [apis, searchTerm, sortBy, sortOrder]);
+
+
+  const formatDate = (dateString) => {
+    return format(new Date(dateString), "MMM d, HH:mm");
+  };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -148,7 +165,7 @@ const APIList = () => {
   };
 
   return (
-    <div className="container mx-auto h-full flex flex-col">
+    <div className="flex flex-col h-screen">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">API List</h2>
 
       <div className="mb-4 flex flex-wrap items-center justify-between">
@@ -180,6 +197,8 @@ const APIList = () => {
         </div>
       </div>
 
+      <div className="flex flex-col justify-between h-full">
+      
       {isLoading ? (
         <Loader />
       ) : filteredAndSortedApis.length === 0 ? (
@@ -194,10 +213,10 @@ const APIList = () => {
             <table className="min-w-full bg-white">
               <thead>
                 <tr className="w-full bg-gray-100 border-b-2 border-gray-300">
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/24 py-2 px-4 text-left text-gray-600 font-semibold">
                     #
                   </th>
-                  <th className="w-5/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-7/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Endpoint
                   </th>
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
@@ -209,7 +228,10 @@ const APIList = () => {
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Code
                   </th>
-                  <th className="w-2/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                    Latency(s)
+                  </th>
+                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
                     Updated At
                   </th>
                   <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
@@ -228,7 +250,7 @@ const APIList = () => {
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td
-                      className="py-2 px-4 truncate max-w-[200px]"
+                      className="py-2 px-4 max-w-[200px] overflow-x-auto thin-scrollbar"
                       title={api.endpoint}
                     >
                       {getHighlightedText(api.endpoint, searchTerm)}
@@ -260,8 +282,9 @@ const APIList = () => {
                       </span>
                     </td>
                     <td className="py-2 px-4">{api.code || "-"}</td>
-                    <td className="py-2 px-4">
-                      {new Date(api.updated_at).toLocaleString()}
+                    <td className="py-2 px-4">{"---"}</td>
+                    <td className="py-2 px-4 text-sm">
+                      {formatDate(api.updated_at)}
                     </td>
                     <td className="py-2 px-4 flex space-x-4 my-2">
                       <Link
@@ -275,7 +298,7 @@ const APIList = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteApi(api._id);
+                          handleDeleteClick(api._id);
                         }}
                         className="text-gray-500 hover:text-gray-700"
                         title="Delete API"
@@ -288,37 +311,37 @@ const APIList = () => {
               </tbody>
             </table>
           </div>
-
-          <div className="flex justify-center items-center mt-6 gap-12">
-            <button
-              onClick={() => currentPage > 1 && paginate(currentPage - 1)}
-              className={`px-3 py-2 bg-gray-200 rounded-md ${
-                currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              disabled={currentPage === 1}
-            >
-              <FaChevronLeft />
-            </button>
-
-            <div className="flex space-x-1">{renderPaginationButtons()}</div>
-
-            <button
-              onClick={() =>
-                currentPage < Math.ceil(totalApis / itemsPerPage) &&
-                paginate(currentPage + 1)
-              }
-              className={`px-3 py-2 bg-gray-200 rounded-md ${
-                currentPage === Math.ceil(totalApis / itemsPerPage)
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-              disabled={currentPage === Math.ceil(totalApis / itemsPerPage)}
-            >
-              <FaChevronRight />
-            </button>
-          </div>
         </>
       )}
+      <div className="flex justify-center items-center mt-6 gap-12">
+        <button
+          onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          className={`px-3 py-2 bg-gray-200 rounded-md ${
+            currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={currentPage === 1}
+        >
+          <FaChevronLeft />
+        </button>
+
+        <div className="flex space-x-1">{renderPaginationButtons()}</div>
+
+        <button
+          onClick={() =>
+            currentPage < Math.ceil(totalApis / itemsPerPage) &&
+            paginate(currentPage + 1)
+          }
+          className={`px-3 py-2 bg-gray-200 rounded-md ${
+            currentPage === Math.ceil(totalApis / itemsPerPage)
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+          disabled={currentPage === Math.ceil(totalApis / itemsPerPage)}
+        >
+          <FaChevronRight />
+        </button>
+      </div>
+      </div>
     </div>
   );
 };
