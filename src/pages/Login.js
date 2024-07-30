@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { adminLogin } from "../redux/slices/adminSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import logo from "../logo.png";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -47,7 +48,12 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center h-full bg-gray-100">
+      <div className="flex items-center p-4 m-4">
+        <img src={logo} alt="Logo" className="w-10 h-10 mr-2" />
+        <span className="text-2xl font-semibold">CAREERS</span> 
+        <span className="text-2xl">360</span>
+      </div>
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Admin Login</h2>
         <form className="space-y-6" onSubmit={handleFormSubmit}>
