@@ -15,7 +15,7 @@ const APIList = ({ openModal }) => {
   const [apis, setApis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(12);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("updated_at");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -213,28 +213,28 @@ const APIList = ({ openModal }) => {
             <table className="min-w-full bg-white">
               <thead>
                 <tr className="w-full bg-gray-100 border-b-2 border-gray-300">
-                  <th className="w-1/24 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/24 py-2  px-2 text-left text-gray-600 font-normal">
                     #
                   </th>
-                  <th className="w-7/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-7/12 py-2  text-left text-gray-600 font-normal ">
                     Endpoint
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/12 py-2 px-2 text-left text-gray-600 font-normal">
                     Method
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/12 py-2 px-2 text-left text-gray-600 font-normal">
                     Status
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/12 py-2 px-2 text-left text-gray-600  font-normal">
                     Code
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/12 py-2 px-2 text-left text-gray-600  font-normal">
                     Latency(s)
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
-                    Updated At
+                  <th className="w-1/12 py-2 px-2 text-left text-gray-600  font-normal">
+                    Updated
                   </th>
-                  <th className="w-1/12 py-2 px-4 text-left text-gray-600 font-semibold">
+                  <th className="w-1/12 py-2 px-2 text-left text-gray-600 font-normal">
                     Actions
                   </th>
                 </tr>
@@ -246,17 +246,16 @@ const APIList = ({ openModal }) => {
                     onClick={() => handleRowClick(api._id)}
                     key={api._id}
                   >
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-2 text-sm">
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td
-                      className="py-2 px-4 max-w-[200px] overflow-x-auto thin-scrollbar"
-                      title={api.endpoint}
+                      className="py-2  max-w-[200px] overflow-x-auto thin-scrollbar text-sm"
                     >
                       {getHighlightedText(api.endpoint, searchTerm)}
                     </td>
                     <td
-                      className={`py-2 px-4 item-center flex ${
+                      className={`py-2 px-4 flex text-sm ${
                         api.method === "GET"
                           ? "text-green-400 font-semibold"
                           : api.method === "POST"
@@ -270,7 +269,7 @@ const APIList = ({ openModal }) => {
                     >
                       {api.method}
                     </td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-4 ">
                       <span
                         className={`px-2 inline-flex text-s leading-5 font-semibold rounded-full ${
                           api.status
@@ -281,12 +280,12 @@ const APIList = ({ openModal }) => {
                         {api.status ? <FiCheck /> : <FiX />}
                       </span>
                     </td>
-                    <td className="py-2 px-4">{api.code || "-"}</td>
-                    <td className="py-2 px-4">{"---"}</td>
-                    <td className="py-2 px-4 text-sm">
+                    <td className="py-2 px-4 text-sm  ">{api.code || "-"}</td>
+                    <td className="py-2 px-4 text-sm ">{api.response_time}</td>
+                    <td className="py-2 px-2 text-sm">
                       {formatDate(api.updated_at)}
                     </td>
-                    <td className="py-2 px-4 flex space-x-4 my-2">
+                    <td className="py-2 px-2 flex space-x-4 my-2">
                       <Link
                         to={`/edit-api/${api._id}`}
                         className="text-gray-500 hover:text-gray-700"
