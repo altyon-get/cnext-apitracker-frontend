@@ -8,7 +8,7 @@ const ApiDetails = ({ apiData, handleHitAndLog, isLoading, formatDate }) => {
     <div className="p-6 bg-gray-200 text-black flex flex-col gap-2">
       <div className="flex items-center">
         <span className="text-lg ">Endpoint:</span>
-        <span className="text-blue-600 hover:text-blue-700 ml-2">
+        <span className="text-blue-600 hover:text-blue-700 ml-2 overflow-x-auto thin-scrollbar">
           {apiData.endpoint}
         </span>
         <Link

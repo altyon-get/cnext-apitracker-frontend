@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { FiTrash2, FiCheck, FiX } from "react-icons/fi";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRigh,FaChevronRight, FaTimes } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -18,7 +18,9 @@ const APIList = ({ openModal }) => {
   const [itemsPerPage] = useState(12);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalApis, setTotalApis] = useState(0);
-  
+  const [methodFilter, setMethodFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [codeFilter, setCodeFilter] = useState("");
 
   useEffect(() => {
     fetchApis();
@@ -32,6 +34,9 @@ const APIList = ({ openModal }) => {
           page: currentPage,
           page_size: itemsPerPage,
           search_term: searchTerm,
+          method: methodFilter,
+          status: statusFilter,
+          code: codeFilter,
         },
       });
       setApis(response?.data?.data);
@@ -41,6 +46,13 @@ const APIList = ({ openModal }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setMethodFilter("");
+    setStatusFilter("");
+    setCodeFilter("");
   };
 
   const deleteApi = async (id) => {
@@ -79,7 +91,6 @@ const APIList = ({ openModal }) => {
       )
     );
   };
-
 
   const formatDate = (dateString) => {
     return format(new Date(dateString), "MMM d, HH:mm");
@@ -156,25 +167,93 @@ const APIList = ({ openModal }) => {
     <div className="flex flex-col h-screen">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">API List</h2>
 
-      <div className="mb-4 flex flex-wrap items-center gap-4">
-        <div className="w-full md:w-1/3 mb-4 md:mb-0">
-          <input
-            type="text"
-            placeholder="Search APIs..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="flex justify-between">
+        <div className="mb-4 flex items-center gap-4">
+          <div className="w-full  mb-4 md:mb-0">
+            <input
+              type="text"
+              placeholder="Search APIs..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button
+            onClick={fetchApis}
+            disabled={isLoading}
+            className={`w-fit py-2 px-2 font-bold text-white rounded-lg ${
+              isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-700"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
+          >
+            Search
+          </button>
         </div>
-        <button
-          onClick={fetchApis}
-          disabled={isLoading}
-          className={`w-fit py-2 px-2 font-bold text-white rounded-lg ${
-            isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-700"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
-        >
-          Search
-        </button>
+        <div className="mb-4 flex items-center gap-4">
+          <div className="w-full md:w-1/3 mb-4 md:mb-0">
+            <select
+              value={methodFilter}
+              onChange={(e) => setMethodFilter(e.target.value)}
+              className={`px-3 py-2 border-2 rounded-md focus:outline-none focus:ring-blue-300 ${
+                methodFilter == "" ? "border-gray-300" : "border-blue-300"
+              }`}
+            >
+              <option value="">Method</option>
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+            </select>
+          </div>
+          <div className="w-full md:w-1/3 mb-4 md:mb-0">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={`px-3 py-2 border-2 rounded-md focus:outline-none  focus:ring-blue-300 ${
+                statusFilter == "" ? "border-gray-300" : "border-blue-300"
+              }`}
+            >
+              <option value="">Status</option>
+              <option value="true">Success</option>
+              <option value="false">Failure</option>
+            </select>
+          </div>
+          <div className="w-full md:w-1/3 mb-4 md:mb-0">
+            <select
+              value={codeFilter}
+              onChange={(e) => setCodeFilter(e.target.value)}
+              className={`px-3 py-2 border-2 rounded-md focus:outline-none  focus:ring-blue-500 ${
+                codeFilter == "" ? "border-gray-300" : "border-blue-300"
+              }`}
+            >
+              <option value="">Code</option>
+              <option value="200">200</option>
+              <option value="201">201</option>
+              <option value="400">400</option>
+              <option value="401">401</option>
+              <option value="403">403</option>
+              <option value="404">404</option>
+              <option value="500">500</option>
+            </select>
+          </div>
+          <button
+            onClick={fetchApis}
+            disabled={isLoading}
+            className={`w-fit py-2 px-2 font-bold text-white rounded-lg ${
+              isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-700"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
+          >
+            Apply
+          </button>
+          <button
+            onClick={handleClearFilters}
+            disabled={isLoading}
+            className={`w-fit py-2 px-2 text-white rounded-lg ${
+              isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-700"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
+          >
+              <FaTimes className=" m-1"/>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col justify-between h-full">
