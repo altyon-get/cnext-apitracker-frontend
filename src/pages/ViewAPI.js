@@ -9,7 +9,10 @@ import { FiCheck, FiX } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { AiFillEdit } from "react-icons/ai";
-
+import ApiDetails from "./ApiDetails";
+import ApiCallLogs from "./ApiCallLogs";
+import ApiLoadTest from "./ApiLoadTest";
+import ApiLoadTest2 from "./ApiLoadTest2";
 const ViewAPI = () => {
   const { id } = useParams();
   const [apiData, setApiData] = useState(null);
@@ -18,6 +21,8 @@ const ViewAPI = () => {
   const [pageSize] = useState(10);
   const [totalLogs, setTotalLogs] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHitAPI, setIsLoadingHitAPI] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("callLogs");
 
   useEffect(() => {
     fetchApiData();
@@ -57,6 +62,7 @@ const ViewAPI = () => {
 
   const handleHitAndLog = async () => {
     setIsLoading(true);
+    setIsLoadingHitAPI(true);
     try {
       await api.post(`api/hit-api/${id}/`);
       fetchApiData();
@@ -69,6 +75,7 @@ const ViewAPI = () => {
       // );
       console.error("Error hitting and logging API:", error);
       setIsLoading(false);
+      setIsLoadingHitAPI(false);
     }
   };
 
@@ -192,135 +199,63 @@ const ViewAPI = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div>
       <div className=" mx-auto bg-white rounded-lg  overflow-hidden">
+        {/* API Detials section*/}
         <h2 className="text-2xl font-bold mb-4">API Details</h2>
         {apiData ? (
-          <div className="p-6 bg-gray-200 text-black flex flex-col gap-2">
-            <div className="flex items-center">
-              <span className="text-lg ">Endpoint:</span>
-              <span className="text-blue-600 hover:text-blue-700 ml-2">
-                {apiData.endpoint}
-              </span>
-              <Link
-                to={`/edit-api/${apiData._id}`}
-                className="text-gray-500 hover:text-gray-700 ml-2"
-                title="Edit API"
-              >
-                <AiFillEdit size={18} />
-              </Link>
-            </div>
-            <div className="flex items-center">
-              <span className="text-lg ">Code:</span>
-              <span className="ml-2 text-gray-500">{apiData.code}</span>
-              <span
-                className={`px-1 inline-flex text-lg leading-5 font-semibold rounded-full mx-2 ${
-                  apiData.status
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {apiData.status ? <FiCheck /> : <FiX />}
-              </span>
-              |
-              <span className="ml-2 text-lg text-gray-500">
-                {formatDate(apiData.updated_at)}
-              </span>
-            </div>
-            <button
-              onClick={handleHitAndLog}
-              disabled={isLoading}
-              className={`w-fit mt-2 ${
-                isLoading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              } text-white font-bold py-1 px-3 rounded  focus:outline-none transition duration-300 ease-in-out`}
-            >
-              {isLoading ? "Loading..." : "Hit API"}
-            </button>
-          </div>
+          <ApiDetails apiData={apiData} formatDate={formatDate} />
         ) : (
           <Loader />
         )}
 
-        <div className="flex gap-8">
-          <div className="w-1/3">
-            <h3 className="text-xl font-bold mt-8 mb-4 text-gray-800">
-              API Call Logs
-            </h3>
-            <div className="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
-              <table className="min-w-full bg-white">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="w-1/8 py-2 px-4 text-left text-gray-600 font-semibold">
-                      #
-                    </th>
-                    <th className="w-2/8 py-2 px-4 text-left text-gray-600 font-semibold">
-                      Timestamp
-                    </th>
-                    <th className="w-2/8 py-2 px-4 text-left text-gray-600 font-semibold">
-                      Code
-                    </th>
-                    <th className="w-2/8 py-2 px-4 text-left text-gray-600 font-semibold">
-                      Latency
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {logs.map((log, index) => (
-                    <tr
-                      key={log._id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
-                    >
-                      <td className="py-2 px-4">
-                        {(page - 1) * pageSize + index + 1}
-                      </td>
-                      <td className="py-2 px-4">{formatDate(log.timestamp)}</td>
-                      <td className="py-2 px-4">{log.status_code || "---"}</td>
-                      <td className="py-2 px-4">{log.response_time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex justify-center items-center mt-6 gap-12">
-              <button
-                onClick={() => page > 1 && paginate(page - 1)}
-                className={`px-3 py-2 bg-gray-200 rounded-md ${
-                  page === 1 ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={page === 1}
-              >
-                <FaChevronLeft />
-              </button>
-
-              <div className="flex space-x-1">{renderPaginationButtons()}</div>
-
-              <button
-                onClick={() =>
-                  page < Math.ceil(totalLogs / pageSize) && paginate(page + 1)
-                }
-                className={`px-3 py-2 bg-gray-200 rounded-md ${
-                  page === Math.ceil(totalLogs / pageSize)
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                disabled={page === Math.ceil(totalLogs / pageSize)}
-              >
-                <FaChevronRight />
-              </button>
-            </div>
-          </div>
-          <div className="w-2/3 flex flex-col justify-center items-center pt-12 px-12">
-            <div className="relative w-full h-96 bg-white p-4 rounded-lg shadow-lg flex justify-center">
-              <Line data={chartData} options={chartOptions} />
-            </div>
-            <h3 className="text-s font-bold mt-8 mb-4 text-gray-800">
-              Response Time Chart
-            </h3>
-          </div>
+        {/* Navbar: calllogs | load test*/}
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setSelectedTab("callLogs")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm focus:outline-none ${
+                selectedTab === "callLogs"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Call Logs
+            </button>
+            <button
+              onClick={() => setSelectedTab("loadTest1")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm focus:outline-none ${
+                selectedTab === "loadTest1"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Load Test
+            </button>
+          </nav>
         </div>
+
+        {/* main content: calllogs:loadtest */}
+        {selectedTab == "callLogs" ? (
+          <ApiCallLogs
+            logs={logs}
+            page={page}
+            pageSize={pageSize}
+            totalLogs={totalLogs}
+            paginate={paginate}
+            handleHitAndLog={handleHitAndLog}
+            formatDate={formatDate}
+            isLoading={isLoading}
+            renderPaginationButtons={renderPaginationButtons}
+            chartData={chartData}
+            chartOptions={chartOptions}
+          />
+        ) : (
+          <></>
+        )}
+        {selectedTab === "loadTest1" && <ApiLoadTest />}
+
+        {selectedTab === "loadTest2" && <ApiLoadTest2 />}
       </div>
     </div>
   );
