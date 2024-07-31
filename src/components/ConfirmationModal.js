@@ -16,7 +16,7 @@ const ConfirmationModal = ({
     <>
       <div className={`absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm ml-${parent=='Sidebar'? 0:isSidebarExpanded? 64:20}`}></div>
       <div
-        className={`fixed inset-0 flex items-center justify-center z-50 ml-${isSidebarExpanded? 64:20} `}
+        className={`fixed inset-0 flex items-center justify-center z-50 ml-${parent=='Sidebar'? 0:isSidebarExpanded? 64:20} `}
       >
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-lg font-semibold">{title}</h3>
