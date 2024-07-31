@@ -11,6 +11,8 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
@@ -21,6 +23,8 @@
     "react-router-dom": "^6.24.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
+    "simplebar": "^6.2.7",
+    "simplebar-react": "^3.2.6",
     "tailwindcss": "^3.4.4",
     "web-vitals": "^2.1.4"
   },
