@@ -10,7 +10,6 @@ import Sidebar from "./components/Sidebar";
 import AddAPI from "./pages/AddAPI";
 import APIList from "./pages/APIList";
 import ViewAPI from "./pages/ViewAPI";
-import ViewAPI2 from "./pages/ViewAPI2";
 import EditAPI from "./pages/EditAPI";
 import { LoginRoute, ProtectedRoute } from "./routes/PrivateRoutes";
 import { ToastContainer } from "react-toastify";
@@ -94,14 +93,6 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <ViewAPI />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/view-api2/:id"
-            element={
-              <ProtectedRoute>
-                <ViewAPI2 />
               </ProtectedRoute>
             }
           />
