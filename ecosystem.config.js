@@ -2,7 +2,7 @@ module.exports = {
     apps: [
       {
         name: "cnext-apitracker-frontend",
-        script: "/src/index.js",
+        script: "src/index.js",
         instances: 2,
         exec_mode: "cluster",
         env: {
