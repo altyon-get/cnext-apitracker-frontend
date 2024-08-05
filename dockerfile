@@ -1,21 +1,11 @@
-FROM node:14-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
-RUN npm run build
-
-FROM nginx:stable-alpine
-
-RUN sed -i 's/listen       80;/listen       3000;/' /etc/nginx/conf.d/default.conf
-
-COPY --from=0 /app/build /usr/share/nginx/html
-
+FROM public.ecr.aws/careers360/cnext-frontend-base:arm64 AS base
+FROM base AS frontend
+# Configure project
+WORKDIR /home/ubuntu/main/cnext-apitracker-frontend
+COPY /package.json /home/ubuntu/main/cnext-apitracker-frontend
+RUN npm config set registry https://npm.careers360.com/
+RUN pnpm i
+COPY . /home/ubuntu/main/cnext-apitracker-frontend
 EXPOSE 3000
-
-CMD ["nginx", "-g", "daemon off;"]
+RUN npm run build
+ENTRYPOINT  serve -s build
