@@ -26,9 +26,7 @@ const Login = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     if (!username || !password) {
-      setError("Please fill in all fields.");
       return;
     }
     setLoading(true);
@@ -41,7 +39,6 @@ const Login = () => {
       toast.error(err.message || "An error occurred during login.", {
         duration: 3000,
       });
-      setError(err.message || "An error occurred during login.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +54,6 @@ const Login = () => {
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Admin Login</h2>
         <form className="space-y-6" onSubmit={handleFormSubmit}>
-          {error && <p className="text-red-500">{error}</p>}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Username

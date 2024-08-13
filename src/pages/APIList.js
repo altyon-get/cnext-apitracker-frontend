@@ -29,16 +29,20 @@ const APIList = ({ openModal }) => {
   const fetchApis = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("api/api-list/", {
-        params: {
-          page: currentPage,
-          page_size: itemsPerPage,
-          search_term: searchTerm,
-          method: methodFilter,
-          status: statusFilter,
-          code: codeFilter,
-        },
-      });
+      const response = await api.get(
+        "api/api-list/",
+        {
+          params: {
+            page: currentPage,
+            page_size: itemsPerPage,
+            search_term: searchTerm,
+            method: methodFilter,
+            status: statusFilter,
+            code: codeFilter,
+          },
+          withCredentials: true
+        }
+      );
       setApis(response?.data?.data);
       setTotalApis(response?.data?.total);
     } catch (error) {
@@ -47,6 +51,39 @@ const APIList = ({ openModal }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchApis();
+  }, [currentPage]);
+
+  const handleSearch = () => {
+    if (searchTerm.trim() === "") {
+      toast.info("Please enter a search term!");
+    } else {
+      if (currentPage == 1) fetchApis();
+      else setCurrentPage(1);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  //to clear search
+  useEffect(() => {
+    // if (searchTerm.trim() === "") {
+    //   if (currentPage == 1) fetchApis();
+    //   else setCurrentPage(1);
+    // }
+  }, [searchTerm]);
+
+  //to apply and clear filters
+  useEffect(() => {
+    // if (currentPage == 1) fetchApis();
+    // else setCurrentPage(1);
+  }, [methodFilter, statusFilter, codeFilter]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
@@ -213,8 +250,8 @@ const APIList = ({ openModal }) => {
               }`}
             >
               <option value="">Status</option>
-              <option value="true">Success</option>
-              <option value="false">Failure</option>
+              <option value="success">Success</option>
+              <option value="failure">Failure</option>
             </select>
           </div>
           <div className="w-full md:w-1/3 mb-4 md:mb-0">

@@ -1,14 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import api from "../api/api";
 import Loader from "../utils/Loader";
-import { Link } from "react-router-dom";
-import { FiCheck, FiX } from "react-icons/fi";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import { AiFillEdit } from "react-icons/ai";
+import {toast } from "react-toastify";
 import ApiDetails from "./ApiDetails";
 import ApiCallLogs from "./ApiCallLogs";
 import ApiLoadTest from "./ApiLoadTest";

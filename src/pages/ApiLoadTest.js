@@ -29,13 +29,18 @@ ChartJS.register(
 
 const ApiLoadTest = () => {
   const { id } = useParams();
-  const [numUsers, setNumUsers] = useState(1);
-  const [duration, setDuration] = useState(1);
+  const [numUsers, setNumUsers] = useState(10);
+  const [duration, setDuration] = useState(2);
   const [testResult, setTestResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const timerRef = useRef(null);
   const resultsRef = useRef(null);
 
+
   const handleRunTest = async () => {
+    setTimer(0);
+    startTimer();
     setLoading(true);
     try {
       const response = await api.get(`api/api-list/${id}/load-test/`, {
@@ -56,14 +61,32 @@ const ApiLoadTest = () => {
     } catch (err) {
       console.error(err);
     } finally {
+      stopTimer(); 
       setLoading(false);
       resultsRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   };
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      setTimer((prevTime) => prevTime + 1);
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    clearInterval(timerRef.current);
+  };
 
   useEffect(()=>{
     resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    return () => stopTimer();
   },[]);
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   const chartData = {
     labels:
@@ -95,7 +118,6 @@ const ApiLoadTest = () => {
         callbacks: {
           label: function (context) {
             const status = context.raw.status;
-            // console.log(context, ' -XXX')
             const label = `Response Time: ${context.raw.y}s, Users: ${numUsers}, Status: ${status}`;
             return label;
           },
@@ -136,7 +158,7 @@ const ApiLoadTest = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700">Duration (s)</label>
+            <label className="block text-gray-700">Duration (m)</label>
             <input
               type="number"
               placeholder="Duration (seconds)"
@@ -156,6 +178,11 @@ const ApiLoadTest = () => {
             </button>
           </div>
         </form>
+        <div className="mt-4 text-gray-700 text-lg">
+          {loading && (
+            <div>Timer: {formatTime(timer)}</div>
+          )}
+        </div>
       </div>
       <div className="min-h-[592px] flex items-center">
         {
@@ -169,7 +196,7 @@ const ApiLoadTest = () => {
               <thead>
                 <tr className="bg-gray-200">
                   <th className="border p-2">User Count</th>
-                  <th className="border p-2">Duration (s)</th>
+                  <th className="border p-2">Duration (m)</th>
 
                   <th className="border p-2">Avg Response Time (s)</th>
                   <th className="border p-2">Lowest Response Time (s)</th>
